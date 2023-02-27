@@ -1,7 +1,7 @@
 #include <GL/glew.h>
 #include <GL/freeglut.h>
-float orthoLeft = 0;
-float orthoRight = 100;
+float orthoLeft = 50;
+float orthoRight = 25;
 float orthoBottom = 0;
 float orthoTop = 100;
 float orthoNear = -1;
