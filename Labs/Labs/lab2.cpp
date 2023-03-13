@@ -3,6 +3,7 @@
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 #include <iostream>
+#include <string.h>
 static enum choice {ortho=1, prespective=2};
 static enum userInput {zoomIn='i', zoomOut='o', stopSpinning=' ', CCW=GLUT_LEFT_BUTTON, CW= GLUT_RIGHT_BUTTON};
 int userChoice = 0;
@@ -28,6 +29,9 @@ float spinZ = 0;
 float spinSpeed = 5;
 float currentSpin = 0;
 float prevTime = 0;
+
+int milliToSecond = 1000;
+void printUserInteraction(std::string button);
 // Drawing routine.
 void drawScene(void)
 {
@@ -38,35 +42,24 @@ void drawScene(void)
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	switch (userChoice) {
 	case ortho:
-		/*
-			write code below:
-			1- handle spinning hint: glRotatef
-			2- draw triangle within viewing box
-			Recommended points:
-			(0, 10, 0)
-			(-30, 0, 0)
-			(30, 0, 0)
-			you are encourged to change points location and observe its effects on rotation
-		*/
-		// code here
-		//------------------------------------------------------------------------------
+			glRotatef(currentSpin, 0, spinY, spinZ);
+			glBegin(GL_TRIANGLES);
+			glVertex3f(0, 10, 0);
+			glVertex3f(-30, 0, 0);
+			glVertex3f(30, 0, 0);
+			glEnd();
 		break;
 	case prespective:
-		/*
-			write code below:
-			1- handle zoom in/out hint: glTranslatef
-			2- handle spinning hint: glRotatef
-			3- draw pyramid within frustum
-			Recommended points:
-			(0, 5, 0)
-			(5, 0, 5)
-			(5, 0, -5)
-			(-5, 0, -5)
-			(-5, 0, 5)
-			you are encourged to change points location and observe its effects on rotation
-		*/
-		// code here
-		//----------------------------------------------------
+			glTranslatef(0, 0, zOffset);
+			glRotatef(currentSpin, 0, spinY, spinZ);
+			glBegin(GL_TRIANGLE_FAN);
+			glVertex3f(0, 5, 0);
+			glVertex3f(5, 0, 5);
+			glVertex3f(5, 0, -5);
+			glVertex3f(-5, 0, -5);
+			glVertex3f(-5, 0, 5);
+			glVertex3f(5, 0, 5);
+			glEnd();
 		break;
 	default:
 		break;
@@ -81,24 +74,21 @@ void setup(void)
 //spin logic
 void spinDisplay(void)
 {
-	/*
-		write code below:
-		1- change currentSpin according to spinSpeed (note: spinSpeed unit is dgree/second)
-		2- mark window to be rerendered (hint: glutPostRedisplay, prveTime)
-	*/
-	// code here
-	//------------------------------------------------------
+	prevTime = glutGet(GLUT_ELAPSED_TIME);
+	if((int)prevTime % milliToSecond == 0){
+		prevTime = 0;
+		currentSpin += spinSpeed;
+		glutPostRedisplay();
+	}
 }
 
 void spinDisplayReverse(void)
 {
-	/*
-		write code below:
-		1- change currentSpin according to spinSpeed (note: spinSpeed unit is dgree/second)
-		2- mark window to be rerendered
-	*/
-	// code here
-	//---------------------------------------------------------------------
+	prevTime=glutGet(GLUT_ELAPSED_TIME);
+	if((int)prevTime % milliToSecond == 0){
+		currentSpin -= spinSpeed;
+		glutPostRedisplay();
+	}
 }
 
 //keyboard & mouse
@@ -107,22 +97,13 @@ void mouse(int button, int state, int x, int y)
 	switch (button)
 	{
 	case CCW:
-		/*
-		write code below:
-			1- assign spin logic to be invoked regularly (hint: glutIdleFunc)
-		*/
-		
-		//-------------------------------------------
+		glutIdleFunc(*spinDisplay);
+		printUserInteraction("Left Mouse Button");
 		break;
 	case CW:
-		/*
-		write code below:
-			1- assign reverse spin logic to be invoked regularly
-		*/
-		// code here
-		//-------------------------------------------
+		glutIdleFunc(*spinDisplayReverse);
+		printUserInteraction("Right Mouse Button");
 		break;
-
 	default:
 		break;
 	}
@@ -135,34 +116,22 @@ void keyInput(unsigned char key, int x, int y)
 		exit(0);
 		break;
 	case zoomIn:
-		/*
-		write code below:
-			1- zoom in
-			2- mark window for rerendering
-		*/
-		// code here
-		//--------------------------------------
+			zOffset += 1;
+			glutPostRedisplay();
 		break;
 	case zoomOut:
-		/*
-		write code below:
-			1- zoom out
-			2- mark window for rerendering
-		*/
-		// code here
-		//--------------------------------------
+			zOffset -= 1;
+			glutPostRedisplay();
 		break;
 	case stopSpinning:
-		/*
-		write code below:
-			1- stop spinning (hint: use NULL)
-		*/
-		// code here
-		//------------------------------------
+		glutIdleFunc(NULL);
 		break;
 	default:
 		break;
 	}
+	std::string key_pressed;
+	key_pressed+=key;
+	printUserInteraction(key_pressed);
 }
 // OpenGL window reshape routine.
 void resize(int w, int h)
@@ -172,34 +141,25 @@ void resize(int w, int h)
 	glLoadIdentity();
 	switch (userChoice) {
 	case ortho:
-		/*
-		write code below:
-			1- initiate viewing box for parallel projection(use ortho variables (orthoLeft, orthoRight, ...))
-		*/
-		// code here
-		//---------------------------------------------------------------
+		spinY = 0;
+		spinZ = 1;
+		glOrtho(orthoLeft, orthoRight, orthoBottom, orthoTop, orthoNear, orthoFar);
+		printUserInteraction("1");
 		break;
 	case prespective:
-		/*
-		write code below:
-			1- initiate frustum for perspective projection (use fru variables (fruLeft, fruRight, ...))
-		*/
-		// code here
-		//-----------------------------------------------------
+		spinY = 1;
+		spinZ = 0;
+		glFrustum(fruLeft, fruRight, fruBottom, fruTop, fruNear, fruFar);
+		printUserInteraction("2");
 		break;
 	default:
 		break;
 	}
-	
 	glMatrixMode(GL_MODELVIEW);
 }
 // user interaction
-void printUserInteraction() {
-	/*write code below:
-	 1- print user interaction(good practice)
-	*/
-	// code here
-	//---------------------------------------
+void printUserInteraction(std::string button) {
+	std::cout << "User Pressed: {" << button << "}" << std::endl;
 }
 
 
@@ -210,14 +170,8 @@ int main(int argc, char** argv)
 
 	glutInitContextVersion(4, 3);
 	glutInitContextProfile(GLUT_COMPATIBILITY_PROFILE);
-	printUserInteraction();
 	std::cout << "Which projection type do you want\n1) parallel projection\n2) perspective projection\n>> ";
-	/*
-	write code below:
-		1- accept input from user and assign the value to userChoice variable
-	*/
-	// code here
-	//---------------------------------------------------------------------
+	std::cin >> userChoice;
 	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGBA);
 	glutInitWindowSize(windowWidth, windowHeight);
 	glutInitWindowPosition(offsetX, offsetY);
