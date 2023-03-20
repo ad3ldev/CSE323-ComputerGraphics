@@ -379,7 +379,7 @@ void printInteraction(void)
 	<<"Press N/n to increase/decrease the number of vertices.\n"
 	<<"Press T/t to increase/decrease the number of turns.\n"
 	<<"Press x, X, y, Y, z, Z to turn the Shape." << std::endl;
-	//	std::cin >> shape;
+	std::cin >> shape;
 }
 
 // Main routine.
