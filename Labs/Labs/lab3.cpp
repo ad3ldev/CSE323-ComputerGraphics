@@ -22,8 +22,8 @@
 // Globals.
 static int shape = 1; // 0 for Helix, 1 for Sphere
 static float R = 5.0; // Radius of Sphere and Helix
-static int p = 6; // Number of longitudinal slices.
-static int q = 4; // Number of latitudinal slices.
+static int p = 10; // Number of longitudinal slices.
+static int q = 5; // Number of latitudinal slices.
 static int w = 0; // 0 Wireframe or 1 Filled Sphere
 static int h = 5; // Pitch of Helix
 static int n = 5; // Vertices of helix
