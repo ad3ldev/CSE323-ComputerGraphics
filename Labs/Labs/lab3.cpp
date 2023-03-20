@@ -20,7 +20,7 @@
 #include <GL/freeglut.h>
 
 // Globals.
-static int shape = 0; // 0 for Helix, 1 for Sphere
+static int shape = 1; // 0 for Helix, 1 for Sphere
 static float R = 5.0; // Radius of Sphere and Helix
 static int p = 6; // Number of longitudinal slices.
 static int q = 4; // Number of latitudinal slices.
@@ -42,21 +42,22 @@ void drawSphere(void)
 	int  i, j;
 	// Array of latitudinal triangle strips, each parallel to the equator, stacked one
 	// above the other from the equator to the north pole.
-	for (j = 0; j < q; j++)
-	{
-		// One latitudinal triangle strip.
-		glBegin(GL_TRIANGLE_STRIP);
-		for (i = 0; i <= p; i++)
+	for (j = -q; j < q; j++)
 		{
-			glVertex3f(R * cos((float)(j + 1) / q * M_PI / 2.0) * cos(2.0 * (float)i / p * M_PI),
-					   R * sin((float)(j + 1) / q * M_PI / 2.0),
-					   -R * cos((float)(j + 1) / q * M_PI / 2.0) * sin(2.0 * (float)i / p * M_PI));
-			glVertex3f(R * cos((float)j / q * M_PI / 2.0) * cos(2.0 * (float)i / p * M_PI),
-					   R * sin((float)j / q * M_PI / 2.0),
-					   -R * cos((float)j / q * M_PI / 2.0) * sin(2.0 * (float)i / p * M_PI));
+			// One latitudinal triangle strip.
+			glBegin(GL_TRIANGLE_STRIP);
+			for (i = 0; i <= p; i++)
+			{
+				glVertex3f(R * cos((float)(j + 1) / q * M_PI / 2.0) * cos(2.0 * (float)i / p * M_PI),
+					R * sin((float)(j + 1) / q * M_PI / 2.0),
+					-R * cos((float)(j + 1) / q * M_PI / 2.0) * sin(2.0 * (float)i / p * M_PI));
+				glVertex3f(R * cos((float)j / q * M_PI / 2.0) * cos(2.0 * (float)i / p * M_PI),
+					R * sin((float)j / q * M_PI / 2.0),
+					-R * cos((float)j / q * M_PI / 2.0) * sin(2.0 * (float)i / p * M_PI));
+			}
+			glEnd();
 		}
-		glEnd();
-	}
+
 }
 
 void drawHelix(void)
@@ -154,7 +155,7 @@ void keyInputSphere(unsigned char key){
 			glutPostRedisplay();
 			break;
 		case 'q':
-			if (q > 3) q -= 1;
+			if (q > 1) q -= 1;
 			glutPostRedisplay();
 			break;
 		case 'P':
@@ -318,7 +319,7 @@ void printInteraction(void)
 	std::cout << "Press P/p to increase/decrease the number of longitudinal slices." << std::endl
 	<< "Press Q/q to increase/decrease the number of latitudinal slices." << std::endl
 	<< "Press x, X, y, Y, z, Z to turn the hemisphere." << std::endl;
-	std::cin >> shape;
+//	std::cin >> shape;
 }
 
 // Main routine.
