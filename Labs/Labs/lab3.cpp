@@ -1,148 +1,161 @@
-///////////////////////////////////////////////////////////////////////////////////////
-// hemisphere.cpp
+//////////////////////////////////////////////////////////////
+// squareAnnulusAndTriangle.cpp
 //
-// This program approximates a hemisphere with an array of latitudinal triangle strips.
+// This program draws a square annulus and a triangle -
+// it illustrates the use of multiple vertex/color arrays.
 //
 // Interaction:
-// Press P/p to increase/decrease the number of longitudinal slices.
-// Press Q/q to increase/decrease the number of latitudinal slices.
-// Press x, X, y, Y, z, Z to turn the hemisphere.
+// Press the space bar to toggle between wireframe and filled.
 //
-// Sumanta Guha.
-///////////////////////////////////////////////////////////////////////////////////////
-
-#define _USE_MATH_DEFINES
+// Sumanta Guha
+//////////////////////////////////////////////////////////////
 
 #include <cmath>
 #include <iostream>
 
 #include <GL/glew.h>
 #include <GL/freeglut.h>
-#include <vector>
 
-// Globals.
-static int shape = 0; // 0 for Helix, 1 for Sphere
-static float R = 5.0; // Radius of Sphere and Helix
-static int p = 10; // Number of longitudinal slices.
-static int q = 5; // Number of latitudinal slices.
-static int w = 0; // 0 Wireframe or 1 Filled Sphere
-static float h = 2; // Pitch of Helix
-static int n = 5; // Vertices of helix
-static int t = 5; // Number of turns of the Helix
-static float Xangle = 0.0, Yangle = 0.0, Zangle = 0.0; // Angles to rotate hemisphere.
-static float offset = -10;
-static float spinSpeed = 5;
-static float prev_time = 0;
-static std::vector<std::vector<double>> pointColors;
-// Initialization routine.
-void setup(void)
+// Begin globals.
+static float *names;
+static unsigned long size;
+
+std::vector<float> A;
+std::vector<float> B;
+std::vector<float> D;
+std::vector<float> E;
+std::vector<float> L;
+std::vector<float> R;
+std::vector<float> H;
+std::vector<float> M;
+std::vector<float> N;
+
+std::vector<float> A2;
+std::vector<float> B2;
+std::vector<float> D2;
+std::vector<float> E2;
+std::vector<float> L2;
+std::vector<float> R2;
+std::vector<float> H2;
+std::vector<float> M2;
+std::vector<float> N2;
+
+// Vertex color vectors for the triangle.
+static float colors2[] =
 {
-	glClearColor(1.0, 1.0, 1.0, 0.0);
-	if(shape == 0){
-		Xangle = -90;
+	0.0, 1.0, 1.0,
+	1.0, 0.0, 0.0,
+	0.0, 1.0, 0.0
+};
+
+// Triangle strip vertex indices in order.
+static unsigned int stripIndices[] = { 0, 1, 2, 3, 4, 5, 6, 7, 0, 1 };
+
+static unsigned int buffer[2]; // Array of buffer ids.
+
+static unsigned int vao[2]; // Array of VAO ids.
+// End globals.
+
+// DDA Algorithm.
+void DDA(std::vector<float> &points, int x1, int y1, int x2, int y2)
+{
+	int dx = x2 - x1;
+	int dy = y2 - y1;
+	int steps, k;
+	
+	float x = x1;
+	float y = y1;
+	float x_inc, y_inc;
+	
+	if (abs(dx) > abs(dy))
+		steps = abs(dx);
+	else
+		steps = abs(dy);
+	
+	x_inc = dx/(float)steps;
+	y_inc = dy/(float)steps;
+	
+	points.push_back(round(x));
+	points.push_back(round(y));
+	points.push_back(0);
+	
+	for (k = 1; k <= steps; k++){
+		x += x_inc;
+		y += y_inc;
+		
+		points.push_back(round(x));
+		points.push_back(round(y));
+		points.push_back(0);
 	}
 }
 
-void drawSphere(void)
+// Bresenham Algorithm.
+void bresenham(std::vector<float> &points, int x0, int y0, int x1, int y1)
 {
-	if(w == 0){
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	int dx = x1 - x0;
+	int dy = y1 - y0;
+	int abs_dx = abs(dx);
+	int abs_dy = abs(dy);
+	
+	int x = x0;
+	int y = y0;
+	
+	points.push_back(x);
+	points.push_back(y);
+	points.push_back(0);
+	
+	if(abs_dx > abs_dy){
+		int p = 2 * abs_dy - abs_dx;
+		for(int i = 0; i < abs_dx; i++){
+			x = dx < 0 ? x-1 : x+1;
+			if(p < 0){
+				p = p + 2*abs_dy;
+			}else{
+				y = dy < 0 ? y -1: y+1;
+				p = p + (2*abs_dy - 2*abs_dx);
+			}
+			points.push_back(x);
+			points.push_back(y);
+			points.push_back(0);
+		}
 	}else{
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	}
-	glColor3f(0.0, 0.0, 0.0);
-	int  i, j;
-	// Array of latitudinal triangle strips, each parallel to the equator, stacked one
-	// above the other from the equator to the north pole.
-	for (j = -q; j < q; j++)
-	{
-		// One latitudinal triangle strip.
-		glBegin(GL_TRIANGLE_STRIP);
-		for (i = 0; i <= p; i++)
-		{
-			glVertex3f(R * cos((float)(j + 1) / q * M_PI / 2.0) * cos(2.0 * (float)i / p * M_PI),
-					   R * sin((float)(j + 1) / q * M_PI / 2.0),
-					   -R * cos((float)(j + 1) / q * M_PI / 2.0) * sin(2.0 * (float)i / p * M_PI));
-			glVertex3f(R * cos((float)j / q * M_PI / 2.0) * cos(2.0 * (float)i / p * M_PI),
-					   R * sin((float)j / q * M_PI / 2.0),
-					   -R * cos((float)j / q * M_PI / 2.0) * sin(2.0 * (float)i / p * M_PI));
+		int p = 2 * abs_dx - abs_dy;
+		for(int i = 0; i < abs_dy; i++){
+			y = dy < 0 ? y -1: y+1;
+			if(p < 0){
+				p = p + 2*abs_dx;
+			}else{
+				x = dx < 0 ? x-1 : x+1;
+				p = p + (2*abs_dx - 2*abs_dy);
+			}
+			points.push_back(x);
+			points.push_back(y);
+			points.push_back(0);
 		}
-		glEnd();
+
 	}
-	
 }
 
-void drawHelix(void)
-{
-	int Xc = 0;
-	int Yc = 1;
-	int Zc = -5;
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	glColor3f(0.0, 0.0, 0.0);
-	int count = 0;
-	glBegin(GL_LINE_STRIP);
-	for(int j = 0; j < t; j++){
-		for(float i =0; i <2*M_PI; i += M_PI / n){
-			glVertex3f(Xc + R * cos((float)(i)),Yc + R * sin((float)(i)), Zc + h*(j+(i/(2*M_PI))));
-			count++;
-		}
-	}
-	glEnd();
-	
-	while (count != pointColors.size()){
-		if(count > pointColors.size()){
-			std::vector<double> temp;
-			double r =((double) rand() / (RAND_MAX));
-			double g =((double) rand() / (RAND_MAX));
-			double b =((double) rand() / (RAND_MAX));
-			temp.push_back(r);
-			temp.push_back(g);
-			temp.push_back(b);
-			pointColors.push_back(temp);
-		}
-		else if (count < pointColors.size()){
-			pointColors.pop_back();
-		}
-	}
-	
-	glPointSize(5);
-	int current = 0;
-	glBegin(GL_POINTS);
-	for(int j = 0; j < t; j++){
-		for(float i =0; i <2*M_PI; i += M_PI / n){
-			glColor3f(pointColors[current][0],pointColors[current][1],pointColors[current][2]);
-			glVertex3f(Xc + R * cos((float)(i)),Yc + R * sin((float)(i)), Zc + h*(j+(i/(2*M_PI))));
-			current++;
-		}
-	}
-	glEnd();
-}
+
 // Drawing routine.
 void drawScene(void)
 {
 	glClear(GL_COLOR_BUFFER_BIT);
-	
-	glLoadIdentity();
-	
-	// Command to push the hemisphere, which is drawn centered at the origin,
-	// into the viewing frustum.
-	glTranslatef(0.0, 0.0, offset);
-	
-	// Commands to turn the hemisphere.
-	glRotatef(Zangle, 0.0, 0.0, 1.0);
-	glRotatef(Yangle, 0.0, 1.0, 0.0);
-	glRotatef(Xangle, 1.0, 0.0, 0.0);
-	
-	// Hemisphere properties.
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	glColor3f(0.0, 0.0, 0.0);
-	
-	if(shape==1){
-		drawSphere();
-	}else{
-		drawHelix();
-	}
+	glPointSize(5.0);
+	glBegin(GL_POINTS);
+	for(int i = 0; i < size; ++i) glArrayElement(i);
+	glEnd();
 	glFlush();
+}
+
+// Initialization routine.
+void setup(void)
+{
+	glClearColor(1.0, 1.0, 1.0, 0.0);
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_COLOR_ARRAY);
+	glVertexPointer(3, GL_FLOAT, 0, names);
+	glColorPointer(3, GL_FLOAT, 0, colors2);
 }
 
 // OpenGL window reshape routine.
@@ -151,254 +164,367 @@ void resize(int w, int h)
 	glViewport(0, 0, w, h);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glFrustum(-5.0, 5.0, -5.0, 5.0, 5.0, 100.0);
+	glOrtho(0.0, 125, 0.0, 125, -1.0, 1.0);
 	glMatrixMode(GL_MODELVIEW);
-}
-
-void spinDisplay() {
-	Yangle += spinSpeed * (glutGet(GLUT_ELAPSED_TIME) - prev_time) / 1000;
-	prev_time = glutGet(GLUT_ELAPSED_TIME); // to indicate refresh rate
-	if (Yangle > 360.0) Yangle -= 360.0;
-	glutPostRedisplay();
-}
-void spinDisplayReverse() {
-	
-	Yangle -= spinSpeed * (glutGet(GLUT_ELAPSED_TIME) - prev_time) / 1000;
-	prev_time = glutGet(GLUT_ELAPSED_TIME); // to indicate refresh rate
-	std::cout << Yangle << std::endl;
-	if (Yangle > 360.0) Yangle -= 360.0;
-	glutPostRedisplay();
-}
-void mouse(int button, int state, int x, int y)
-{
-	switch (button)
-	{
-		case GLUT_LEFT_BUTTON:
-			if (state == GLUT_DOWN)
-				glutIdleFunc(spinDisplay);
-			break;
-		case GLUT_RIGHT_BUTTON:
-			if (state == GLUT_DOWN)
-				glutIdleFunc(spinDisplayReverse);
-			
-			break;
-			
-		default:
-			break;
-	}
-}
-
-void keyInputSphere(unsigned char key){
-	switch (key)
-	{
-		case 27:
-			exit(0);
-			break;
-		case 'R':
-			R += 0.5;
-			glutPostRedisplay();
-			break;
-		case 'r':
-			if (R > 1) R-=0.5;
-			glutPostRedisplay();
-			break;
-		case 'Q':
-			q += 1;
-			glutPostRedisplay();
-			break;
-		case 'q':
-			if (q > 1) q -= 1;
-			glutPostRedisplay();
-			break;
-		case 'P':
-			p += 1;
-			glutPostRedisplay();
-			break;
-		case 'p':
-			if (p > 3) p -= 1;
-			glutPostRedisplay();
-			break;
-		case 'W':
-			w = 0;
-			glutPostRedisplay();
-			break;
-		case 'w':
-			w = 1;
-			glutPostRedisplay();
-			break;
-		case 'x':
-			Xangle += 5.0;
-			if (Xangle > 360.0) Xangle -= 360.0;
-			glutPostRedisplay();
-			break;
-		case 'X':
-			Xangle -= 5.0;
-			if (Xangle < 0.0) Xangle += 360.0;
-			glutPostRedisplay();
-			break;
-		case 'y':
-			Yangle += 5.0;
-			if (Yangle > 360.0) Yangle -= 360.0;
-			glutPostRedisplay();
-			break;
-		case 'Y':
-			Yangle -= 5.0;
-			if (Yangle < 0.0) Yangle += 360.0;
-			glutPostRedisplay();
-			break;
-		case 'z':
-			Zangle += 5.0;
-			if (Zangle > 360.0) Zangle -= 360.0;
-			glutPostRedisplay();
-			break;
-		case 'Z':
-			Zangle -= 5.0;
-			if (Zangle < 0.0) Zangle += 360.0;
-			glutPostRedisplay();
-			break;
-		case 'O':
-			offset += 1;
-			glutPostRedisplay();
-			break;
-		case 'o':
-			offset -= 1;
-			glutPostRedisplay();
-			break;
-		case ' ':
-			glutIdleFunc(NULL);
-			break;
-		default:
-			break;
-	}
-}
-
-void keyInputHelix(unsigned char key){
-	switch (key)
-	{
-		case 27:
-			exit(0);
-			break;
-		case 'R':
-			R += 0.5;
-			glutPostRedisplay();
-			break;
-		case 'r':
-			if (R > 1) R -= 0.5;
-			glutPostRedisplay();
-			break;
-		case 'H':
-			h += 0.5;
-			glutPostRedisplay();
-			break;
-		case 'h':
-			if (h > 1) h -= 0.5;
-			glutPostRedisplay();
-			break;
-		case 'N':
-			n += 1;
-			glutPostRedisplay();
-			break;
-		case 'n':
-			if (n > 2) n -= 1;
-			glutPostRedisplay();
-			break;
-		case 'T':
-			t += 1;
-			glutPostRedisplay();
-			break;
-		case 't':
-			if (t > 3) t -= 1;
-			glutPostRedisplay();
-			break;
-		case 'x':
-			Xangle += 5.0;
-			if (Xangle > 360.0) Xangle -= 360.0;
-			glutPostRedisplay();
-			break;
-		case 'X':
-			Xangle -= 5.0;
-			if (Xangle < 0.0) Xangle += 360.0;
-			glutPostRedisplay();
-			break;
-		case 'y':
-			Yangle += 5.0;
-			if (Yangle > 360.0) Yangle -= 360.0;
-			glutPostRedisplay();
-			break;
-		case 'Y':
-			Yangle -= 5.0;
-			if (Yangle < 0.0) Yangle += 360.0;
-			glutPostRedisplay();
-			break;
-		case 'z':
-			Zangle += 5.0;
-			if (Zangle > 360.0) Zangle -= 360.0;
-			glutPostRedisplay();
-			break;
-		case 'Z':
-			Zangle -= 5.0;
-			if (Zangle < 0.0) Zangle += 360.0;
-			glutPostRedisplay();
-			break;
-		case 'O':
-			offset += 1;
-			glutPostRedisplay();
-			break;
-		case 'o':
-			offset -= 1;
-			glutPostRedisplay();
-			break;
-		case ' ':
-			glutIdleFunc(NULL);
-			break;
-		default:
-			break;
-	}
+	glLoadIdentity();
 }
 
 // Keyboard input processing routine.
 void keyInput(unsigned char key, int x, int y)
 {
-	if(shape == 1){
-		keyInputSphere(key);
-	}else{
-		keyInputHelix(key);
+	switch (key)
+	{
+		case 27:
+			exit(0);
+			break;
+		default:
+			break;
 	}
 }
 
-// Routine to output interaction instructions to the C++ window.
-void printInteraction(void)
-{
-	std::cout << "Interaction:" << std::endl;
-	std::cout << "Press '1' for Sphere and '0' for Helix:" << std::endl;
-	std::cout << "Press R/r to increase/decrease the radius.\n"
-	<<"Press P/p to increase/decrease the number of longitudinal slices.\n"
-	<<"Press Q/q to increase/decrease the number of latitudinal slices.\n"
-	<<"Press W/w to get a wireframe/filled shape.\n"
-	<<"Press H/h to increase/decrease the pitch (height).\n"
-	<<"Press N/n to increase/decrease the number of vertices.\n"
-	<<"Press T/t to increase/decrease the number of turns.\n"
-	<<"Press x, X, y, Y, z, Z to turn the Shape." << std::endl;
-	std::cin >> shape;
+void letter_A(){
+	bresenham(A, 0,0,0,6);
+	bresenham(A, 0,6,4,8);
+	bresenham(A, 4,8,8,6);
+	bresenham(A, 8,6,8,0);
+	bresenham(A, 0,4,8,4);
+}
+void letter_B(){
+	bresenham(B, 0,0,0,8);
+	bresenham(B, 0,8,5,8);
+	bresenham(B, 5,8,8,7);
+	bresenham(B, 8,7,8,5);
+	bresenham(B, 8,5,5,4);
+	bresenham(B, 5,4,8,3);
+	bresenham(B, 8,3,8,1);
+	bresenham(B, 8,1,5,0);
+	bresenham(B, 5,0,0,0);
+	bresenham(B, 0,4,5,4);
+}
+void letter_D(){
+	bresenham(D, 0,0,0,8);
+	bresenham(D, 0,8,5,8);
+	bresenham(D, 5,8,8,6);
+	bresenham(D, 8,6,8,2);
+	bresenham(D, 8,2,5,0);
+	bresenham(D, 5,0,0,0);
+}
+void letter_E(){
+	bresenham(E, 0,0,0,8);
+	bresenham(E, 0,0,8,0);
+	bresenham(E, 0,4,8,4);
+	bresenham(E, 0,8,8,8);
+}
+void letter_L(){
+	bresenham(L, 0,0,0,8);
+	bresenham(L, 0,0,8,0);
+}
+void letter_R(){
+	bresenham(R, 0,0,0,8);
+	bresenham(R, 0,8,5,8);
+	bresenham(R, 5,8,8,7);
+	bresenham(R, 8,7,8,5);
+	bresenham(R, 8,5,5,4);
+	bresenham(R, 5,4,8,3);
+	bresenham(R, 8,3,8,0);
+	bresenham(R, 0,4,5,4);
+}
+void letter_H(){
+	bresenham(H, 0,0,0,8);
+	bresenham(H, 8,0,8,8);
+	bresenham(H, 0,4,8,4);
+}
+void letter_M(){
+	bresenham(M, 0,0,0,8);
+	bresenham(M, 0,8,4,4);
+	bresenham(M, 4,4,8,8);
+	bresenham(M, 8,8,8,0);
+}
+void letter_N(){
+	bresenham(N, 0,0,0,8);
+	bresenham(N, 0,8,8,0);
+	bresenham(N, 8,0,8,8);
+}
+
+void letter_A2(){
+	DDA(A2, 0,0,0,6);
+	DDA(A2, 0,6,4,8);
+	DDA(A2, 4,8,8,6);
+	DDA(A2, 8,6,8,0);
+	DDA(A2, 0,4,8,4);
+}
+void letter_B2(){
+	DDA(B2, 0,0,0,8);
+	DDA(B2, 0,8,5,8);
+	DDA(B2, 5,8,8,7);
+	DDA(B2, 8,7,8,5);
+	DDA(B2, 8,5,5,4);
+	DDA(B2, 5,4,8,3);
+	DDA(B2, 8,3,8,1);
+	DDA(B2, 8,1,5,0);
+	DDA(B2, 5,0,0,0);
+	DDA(B2, 0,4,5,4);
+}
+void letter_D2(){
+	DDA(D2, 0,0,0,8);
+	DDA(D2, 0,8,5,8);
+	DDA(D2, 5,8,8,6);
+	DDA(D2, 8,6,8,2);
+	DDA(D2, 8,2,5,0);
+	DDA(D2, 5,0,0,0);
+}
+void letter_E2(){
+	DDA(E2, 0,0,0,8);
+	DDA(E2, 0,0,8,0);
+	DDA(E2, 0,4,8,4);
+	DDA(E2, 0,8,8,8);
+}
+void letter_L2(){
+	DDA(L2, 0,0,0,8);
+	DDA(L2, 0,0,8,0);
+}
+void letter_R2(){
+	DDA(R2, 0,0,0,8);
+	DDA(R2, 0,8,5,8);
+	DDA(R2, 5,8,8,7);
+	DDA(R2, 8,7,8,5);
+	DDA(R2, 8,5,5,4);
+	DDA(R2, 5,4,8,3);
+	DDA(R2, 8,3,8,0);
+	DDA(R2, 0,4,5,4);
+}
+void letter_H2(){
+	DDA(H2, 0,0,0,8);
+	DDA(H2, 8,0,8,8);
+	DDA(H2, 0,4,8,4);
+}
+void letter_M2(){
+	DDA(M2, 0,0,0,8);
+	DDA(M2, 0,8,4,4);
+	DDA(M2, 4,4,8,8);
+	DDA(M2, 8,8,8,0);
+}
+void letter_N2(){
+	DDA(N2, 0,0,0,8);
+	DDA(N2, 0,8,8,0);
+	DDA(N2, 8,0,8,8);
+}
+void init_bre_letters(){
+	letter_A();
+	letter_B();
+	letter_D();
+	letter_E();
+	letter_L();
+	letter_R();
+	letter_H();
+	letter_M();
+	letter_N();
+}
+void init_dda_letters(){
+	letter_A2();
+	letter_B2();
+	letter_D2();
+	letter_E2();
+	letter_L2();
+	letter_R2();
+	letter_H2();
+	letter_M2();
+	letter_N2();
+}
+void init_letters_with_offset(){
+	int j = 5;
+	int y_offset = 75;
+	for (int i = 0; i < A.size(); i+=3) {
+		A[i] = j+A[i];
+		A[i+1] = y_offset+A[i+1];
+		A[i+2] = A[i+2];
+	}
+	j += 10;
+	for (int i = 0; i < B.size(); i+=3) {
+		B[i] = j+B[i];
+		B[i+1] = y_offset+B[i+1];
+		B[i+2] = B[i+2];
+	}
+	j += 10;
+	for (int i = 0; i < D.size(); i+=3) {
+		D[i] = j+D[i];
+		D[i+1] = y_offset+D[i+1];
+		D[i+2] = D[i+2];
+	}
+	j += 10;
+	for (int i = 0; i < E.size(); i+=3) {
+		E[i] = j+E[i];
+		E[i+1] = y_offset+E[i+1];
+		E[i+2] = E[i+2];
+	}
+	j += 10;
+	for (int i = 0; i < L.size(); i+=3) {
+		L[i] = j+L[i];
+		L[i+1] = y_offset+L[i+1];
+		L[i+2] = L[i+2];
+	}
+	j += 10;
+	for (int i = 0; i < R.size(); i+=3) {
+		R[i] = j+R[i];
+		R[i+1] = y_offset+R[i+1];
+		R[i+2] = R[i+2];
+	}
+	j += 10;
+	for (int i = 0; i < A.size(); i+=3) {
+		A[i] = j+A[i];
+		A[i+1] = y_offset+A[i+1];
+		A[i+2] = A[i+2];
+	}
+	j += 10;
+	for (int i = 0; i < H.size(); i+=3) {
+		H[i] = j+H[i];
+		H[i+1] = y_offset+H[i+1];
+		H[i+2] = H[i+2];
+	}
+	j += 10;
+	for (int i = 0; i < M.size(); i+=3) {
+		M[i] = j+M[i];
+		M[i+1] = y_offset+M[i+1];
+		M[i+2] = M[i+2];
+	}
+	j += 10;
+	for (int i = 0; i < A.size(); i+=3) {
+		A[i] = j+A[i];
+		A[i+1] = y_offset+A[i+1];
+		A[i+2] = A[i+2];
+	}
+	j += 10;
+	for (int i = 0; i < N.size(); i+=3) {
+		N[i] = j+N[i];
+		N[i+1] = y_offset+N[i+1];
+		N[i+2] = N[i+2];
+	}
+	
+	j = 5;
+	 y_offset = 50;
+	for (int i = 0; i < A2.size(); i+=3) {
+		A2[i] = j+A2[i];
+		A2[i+1] = y_offset+A2[i+1];
+		A2[i+2] = A2[i+2];;
+	}
+	j += 10;
+	for (int i = 0; i < B2.size(); i+=3) {
+		B2[i] = j+B2[i];
+		B2[i+1] = y_offset+B2[i+1];
+		B2[i+2] = B2[i+2];
+	}
+	j += 10;
+	for (int i = 0; i < D2.size(); i+=3) {
+		D2[i] = j+D2[i];
+		D2[i+1] = y_offset+D2[i+1];
+		D2[i+2] = D2[i+2];
+	}
+	j += 10;
+	for (int i = 0; i < E2.size(); i+=3) {
+		E2[i] = j+E2[i];
+		E2[i+1] = y_offset+E2[i+1];
+		E2[i+2] = E2[i+2];
+	}
+	j += 10;
+	for (int i = 0; i < L2.size(); i+=3) {
+		L2[i] = j+L2[i];
+		L2[i+1] = y_offset+L2[i+1];
+		L2[i+2] = L2[i+2];
+	}
+	j += 10;
+	for (int i = 0; i < R2.size(); i+=3) {
+		R2[i] = j+R2[i];
+		R2[i+1] = y_offset+R2[i+1];
+		R2[i+2] = R2[i+2];
+	}
+	j += 10;
+	for (int i = 0; i < A2.size(); i+=3) {
+		A2[i] = j+A2[i];
+		A2[i+1] = y_offset+A2[i+1];
+		A2[i+2] = A2[i+2];
+	}
+	j += 10;
+	for (int i = 0; i < H2.size(); i+=3) {
+		H2[i] = j+H2[i];
+		H2[i+1] = y_offset+H2[i+1];
+		H2[i+2] = H2[i+2];
+	}
+	j += 10;
+	for (int i = 0; i < M2.size(); i+=3) {
+		M2[i] = j+M2[i];
+		M2[i+1] = y_offset+M2[i+1];
+		M2[i+2] = M2[i+2];
+	}
+	j += 10;
+	for (int i = 0; i < A2.size(); i+=3) {
+		A2[i] = j+A2[i];
+		A2[i+1] = y_offset+A2[i+1];
+		A2[i+2] = A2[i+2];
+	}
+	j += 10;
+	for (int i = 0; i < N2.size(); i+=3) {
+		N2[i] = j+N2[i];
+		N2[i+1] = y_offset+N2[i+1];
+		N2[i+2] = N2[i+2];
+	}
+}
+void for_loop_assign(int &i ,std::vector<float> X){
+	for (auto X_point : X) {
+		names[i] = X_point;
+		i++;
+	}
+}
+void init_pointer(){
+	unsigned long bre_length = A.size()+B.size()+D.size()+E.size()+L.size()+R.size()+A.size()+H.size()+M.size()+A.size()+N.size();
+	unsigned long dda_length = A2.size()+B2.size()+D2.size()+E2.size()+L2.size()+R2.size()+A2.size()+H2.size()+M2.size()+A2.size()+N2.size();
+	size = bre_length + dda_length;
+	names = (float *)malloc(sizeof(float)* (size));
+	int i = 0;
+	for_loop_assign(i, A);
+	for_loop_assign(i, B);
+	for_loop_assign(i, D);
+	for_loop_assign(i, E);
+	for_loop_assign(i, L);
+	for_loop_assign(i, R);
+	for_loop_assign(i, A);
+	for_loop_assign(i, H);
+	for_loop_assign(i, M);
+	for_loop_assign(i, A);
+	for_loop_assign(i, N);
+	for_loop_assign(i, A2);
+	for_loop_assign(i, B2);
+	for_loop_assign(i, D2);
+	for_loop_assign(i, E2);
+	for_loop_assign(i, L2);
+	for_loop_assign(i, R2);
+	for_loop_assign(i, A2);
+	for_loop_assign(i, H2);
+	for_loop_assign(i, M2);
+	for_loop_assign(i, A2);
+	for_loop_assign(i, N2);
+	
 }
 
 // Main routine.
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
-	printInteraction();
-	glutInit(&argc, argv);
 	
+	init_bre_letters();
+	init_dda_letters();
+	init_letters_with_offset();
+	init_pointer();
+	
+	glutInit(&argc, argv);
 	glutInitContextVersion(4, 3);
 	glutInitContextProfile(GLUT_COMPATIBILITY_PROFILE);
-	
 	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGBA);
 	glutInitWindowSize(500, 500);
 	glutInitWindowPosition(100, 100);
-	glutCreateWindow("hemisphere.cpp");
+	glutCreateWindow("My First Name");
 	glutDisplayFunc(drawScene);
 	glutReshapeFunc(resize);
 	glutKeyboardFunc(keyInput);
-	glutMouseFunc(mouse);
+	
 	glewExperimental = GL_TRUE;
 	glewInit();
 	
