@@ -19,8 +19,8 @@
 // Globals.
 static GLuint cylinders;
 static int wireframe = 0;
-static float x_rotate = 0;
-static float y_rotate = 90;
+static float x_rotate = 90;
+static float y_rotate = 0;
 static float z_rotate = 0;
 
 static float radius = 12;
@@ -46,10 +46,6 @@ void drawScene(void)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL_NV);
 	};
 	glPushMatrix();
-	
-//	glRotatef(x_rotate, 1, 0, 0);
-//	glRotatef(y_rotate, 0, 1, 0);
-//	glRotatef(z_rotate, 0, 0, 1);
 	
 	float angle = 0;
 	float x_translate = radius*sin(to_rad(angle));
