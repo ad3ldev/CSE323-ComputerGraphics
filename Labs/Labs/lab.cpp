@@ -20,22 +20,20 @@
 static GLuint cylinders;
 static int wireframe = 0;
 static float x_rotate = 0;
-static float y_rotate = 0;
+static float y_rotate = 90;
 static float z_rotate = 0;
 
 static float radius = 12;
-static float origin = -60;
+static float origin = -65;
 static float slices = 25;
 static float loops = 10;
 static float height = 10;
+static int step = 10;
+static float leg_angle = 15;
 
-static float top_x_scale = 1.5;
-static float top_y_scale = 1.5;
-static float top_z_scale = 1;
-static float leg_x_scale = 0.4;
-static float leg_y_scale = 0.4;
-static float leg_z_scale = 3;
-
+float to_rad(float angle){
+	return angle*M_PI/180;
+}
 // Drawing routine.
 void drawScene(void)
 {
@@ -45,49 +43,95 @@ void drawScene(void)
 	if(wireframe == 0){
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	}else{
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL_NV);
 	};
+	glPushMatrix();
 	
+//	glRotatef(x_rotate, 1, 0, 0);
+//	glRotatef(y_rotate, 0, 1, 0);
+//	glRotatef(z_rotate, 0, 0, 1);
+	
+	float angle = 0;
+	float x_translate = radius*sin(to_rad(angle));
+	float y_translate = radius*cos(to_rad(angle));
+	float z_translate = height;
+	
+	glPushMatrix();
+	glTranslatef(0, 0, origin);
+	
+	glPushMatrix();
+	glTranslatef(x_translate, y_translate, z_translate);
 	glColor3f(0.0, 1.0, 0.0);
 	glPushMatrix();
-	glTranslatef(radius, -height, origin);
-	glRotatef(90+x_rotate, 1, 0.5, 0);
+	glTranslatef(-x_translate, -y_translate, -z_translate);
+	glRotatef(x_rotate, 1, 0, 0);
 	glRotatef(y_rotate, 0, 1, 0);
-	glRotatef(z_rotate, 0, 0, 1);
-	glScalef(leg_x_scale, leg_y_scale, leg_z_scale);
+	glRotatef(-z_rotate, 0, 0, 1);
+	glTranslatef(x_translate, y_translate, z_translate);
+	glPushMatrix();
+	glRotatef(leg_angle, -cos(to_rad(angle)), sin(to_rad(angle)), 0);
 	glCallList(cylinders);
 	glPopMatrix();
+	glPopMatrix();
+	glPopMatrix();
 	
+	angle = 120;
+	x_translate = radius*sin(to_rad(angle));
+	y_translate = radius*cos(to_rad(angle));
+	z_translate = height;
+	glPushMatrix();
+	glTranslatef(x_translate, y_translate, z_translate);
 	glColor3f(0.0, 0.0, 1.0);
 	glPushMatrix();
-	glTranslatef(0, -height, origin-radius);
-	glRotatef(90+x_rotate, 0.5, 0, 0);
+	glTranslatef(-x_translate, -y_translate, -z_translate);
+	glRotatef(x_rotate, 1, 0, 0);
 	glRotatef(y_rotate, 0, 1, 0);
-	glRotatef(z_rotate, 0, 0, 1);
-	glScalef(leg_x_scale, leg_y_scale, leg_z_scale);
+	glRotatef(-z_rotate, 0, 0, 1);
+	glTranslatef(x_translate, y_translate, z_translate);
+	glPushMatrix();
+	glRotatef(leg_angle, -cos(to_rad(angle)), sin(to_rad(angle)), 0);
 	glCallList(cylinders);
 	glPopMatrix();
+	glPopMatrix();
+	glPopMatrix();
 	
-	glColor3f(0.0, 0.0, 0);
+	angle = 240;
+	x_translate = radius*sin(to_rad(angle));
+	y_translate = radius*cos(to_rad(angle));
+	z_translate = height;
 	glPushMatrix();
-	glTranslatef(-radius, -height, origin);
-	glRotatef(90+x_rotate, 1, -0.5, 0);
+	glTranslatef(x_translate, y_translate, z_translate);
+	glColor3f(0.0, 0.0, 0.0);
+	glPushMatrix();
+	glTranslatef(-x_translate, -y_translate, -z_translate);
+	glRotatef(x_rotate, 1, 0, 0);
 	glRotatef(y_rotate, 0, 1, 0);
-	glRotatef(z_rotate, 0, 0, 1);
-	glScalef(leg_x_scale, leg_y_scale, leg_z_scale);
+	glRotatef(-z_rotate, 0, 0, 1);
+	glTranslatef(x_translate, y_translate, z_translate);
+	glPushMatrix();
+	glRotatef(leg_angle, -cos(to_rad(angle)), sin(to_rad(angle)), 0);
 	glCallList(cylinders);
+	glPopMatrix();
+	glPopMatrix();
 	glPopMatrix();
 	
 	glColor3f(1.0, 0.0, 0.0);
 	glPushMatrix();
-	glTranslatef(0, 0, origin);
-	glRotatef(90+x_rotate, 1, 0, 0);
+	glRotatef(x_rotate, 1, 0, 0);
 	glRotatef(y_rotate, 0, 1, 0);
 	glRotatef(z_rotate, 0, 0, 1);
-	glScalef(top_x_scale, top_y_scale, top_z_scale);
-	glCallList(cylinders);
+	glPushMatrix();
+	gluDisk(gluNewQuadric(), 0, radius*1.5, slices, loops);
+	gluCylinder(gluNewQuadric(), radius*1.5, radius*1.5, height, slices, loops);
+	glPushMatrix();
+	glTranslatef(0, 0, height);
+	gluDisk(gluNewQuadric(), 0, radius*1.5, slices, loops);
+	glPopMatrix();
+	glPopMatrix();
+	glPopMatrix();
 	glPopMatrix();
 	
+	glPopMatrix();
 	glFlush();
 }
 
@@ -97,11 +141,11 @@ void setup(void)
 	cylinders = glGenLists(1);
 	// Begin create a display list.
 	glNewList(cylinders, GL_COMPILE);
-	gluDisk(gluNewQuadric(), 0, radius, slices, loops);
-	gluCylinder(gluNewQuadric(), radius, radius, height, slices, loops);
+	gluDisk(gluNewQuadric(), 0, radius/4, slices, loops);
+	gluCylinder(gluNewQuadric(), radius/4, radius/4, 3*height, slices, loops);
 	glPushMatrix();
-	glTranslatef(0, 0, height);
-	gluDisk(gluNewQuadric(), 0, radius, slices, loops);
+	glTranslatef(0, 0, 3*height);
+	gluDisk(gluNewQuadric(), 0, radius/4, slices, loops);
 	glPopMatrix();
 	glEndList();
 	// End create a display list.
@@ -128,22 +172,22 @@ void keyInput(unsigned char key, int x, int y)
 			exit(0);
 			break;
 		case 'x':
-			x_rotate += 1;
+			x_rotate += step;
 			break;
 		case 'X':
-			x_rotate -= 1;
+			x_rotate -= step;
 			break;
 		case 'y':
-			y_rotate += 1;
+			y_rotate += step;
 			break;
 		case 'Y':
-			y_rotate -= 1;
+			y_rotate -= step;
 			break;
 		case 'z':
-			z_rotate += 1;
+			z_rotate += step;
 			break;
 		case 'Z':
-			z_rotate -= 1;
+			z_rotate -= step;
 			break;
 		case ' ':
 			wireframe = wireframe == 0 ? 1 : 0;
