@@ -46,65 +46,47 @@ void drawScene(void)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	}else{
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	}
+	};
 	
 	glColor3f(0.0, 1.0, 0.0);
 	glPushMatrix();
-	
 	glTranslatef(radius, -height, origin);
-	
 	glRotatef(90+x_rotate, 1, 0.5, 0);
 	glRotatef(y_rotate, 0, 1, 0);
 	glRotatef(z_rotate, 0, 0, 1);
-	
 	glScalef(leg_x_scale, leg_y_scale, leg_z_scale);
-	
 	glCallList(cylinders);
 	glPopMatrix();
 	
 	glColor3f(0.0, 0.0, 1.0);
 	glPushMatrix();
-	
 	glTranslatef(0, -height, origin-radius);
-	
 	glRotatef(90+x_rotate, 0.5, 0, 0);
 	glRotatef(y_rotate, 0, 1, 0);
 	glRotatef(z_rotate, 0, 0, 1);
-	
 	glScalef(leg_x_scale, leg_y_scale, leg_z_scale);
-	
 	glCallList(cylinders);
 	glPopMatrix();
 	
 	glColor3f(0.0, 0.0, 0);
 	glPushMatrix();
-	
 	glTranslatef(-radius, -height, origin);
-	
 	glRotatef(90+x_rotate, 1, -0.5, 0);
 	glRotatef(y_rotate, 0, 1, 0);
 	glRotatef(z_rotate, 0, 0, 1);
-	
 	glScalef(leg_x_scale, leg_y_scale, leg_z_scale);
-	
 	glCallList(cylinders);
 	glPopMatrix();
 	
 	glColor3f(1.0, 0.0, 0.0);
 	glPushMatrix();
-	
 	glTranslatef(0, 0, origin);
-	
 	glRotatef(90+x_rotate, 1, 0, 0);
 	glRotatef(y_rotate, 0, 1, 0);
 	glRotatef(z_rotate, 0, 0, 1);
-	
 	glScalef(top_x_scale, top_y_scale, top_z_scale);
-	
 	glCallList(cylinders);
 	glPopMatrix();
-
-	
 	
 	glFlush();
 }
@@ -117,8 +99,10 @@ void setup(void)
 	glNewList(cylinders, GL_COMPILE);
 	gluDisk(gluNewQuadric(), 0, radius, slices, loops);
 	gluCylinder(gluNewQuadric(), radius, radius, height, slices, loops);
+	glPushMatrix();
 	glTranslatef(0, 0, height);
 	gluDisk(gluNewQuadric(), 0, radius, slices, loops);
+	glPopMatrix();
 	glEndList();
 	// End create a display list.
 	glClearColor(1.0, 1.0, 1.0, 0.0);
@@ -181,7 +165,7 @@ int main(int argc, char **argv)
 	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGBA);
 	glutInitWindowSize(500, 500);
 	glutInitWindowPosition(100, 100);
-	glutCreateWindow("helixList.cpp");
+	glutCreateWindow("Stool");
 	glutDisplayFunc(drawScene);
 	glutReshapeFunc(resize);
 	glutKeyboardFunc(keyInput);
