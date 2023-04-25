@@ -43,7 +43,7 @@ void drawScene(void)
 	if(wireframe == 0){
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	}else{
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL_NV);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	};
 	glPushMatrix();
 	
