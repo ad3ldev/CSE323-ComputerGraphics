@@ -1,6 +1,5 @@
 #include "headers.hpp"
 
-#define SUN_RADIUS 30
 #define NUMNER_OF_BODIES 9
 
 // Globals.
@@ -108,47 +107,68 @@ void setup(void)
 	glPopMatrix();
 	glEndList();
 
-	float distance = SUN_RADIUS;
-	float radius = SUN_RADIUS;
-	Body sun = Body(0, 0, 0, radius, distance, rand() % 256, rand() % 256, rand() % 256, 0, 0);
+	float distance = 0;
+	float radius = 30;
+	unsigned int red = 255;
+	unsigned int green = 255;
+	unsigned int blue = 0;
+	Body sun = Body(0, 0, 0, radius, distance, red, green, blue, 0, 0);
 
-	distance += radius;
-	radius = SUN_RADIUS;
-	Body mercury = Body(0, 0, 0, radius, distance, rand() % 256, rand() % 256, rand() % 256, 0, 0);
+	distance = 38;
+	radius = 4;
+	red = 26;
+	green = 26;
+	blue = 26;
+	Body mercury = Body(distance, 0, 0, radius, distance, red, green, blue, 0, 0);
 
-	distance += radius;
-	radius = SUN_RADIUS;
-	Body venus = Body(0, 0, 0, radius, distance, rand() % 256, rand() % 256, rand() % 256, 0, 0);
-	distance += radius;
+	distance = 72;
+	radius = 9;
+	red = 230;
+	green = 230;
+	blue = 230;
+	Body venus = Body(distance, 0, 0, radius, distance, red, green, blue, 0, 0);
 
-	distance += radius;
-	radius = SUN_RADIUS;
-	Body earth = Body(0, 0, 0, radius, distance, rand() % 256, rand() % 256, rand() % 256, 0, 0);
+	distance = 100;
+	radius = 10;
+	red = 47;
+	green = 106;
+	blue = 105;
+	Body earth = Body(distance, 0, 0, radius, distance, red, green, blue, 0, 0);
 
-	distance += radius;
-	radius = SUN_RADIUS;
-	Body mars = Body(0, 0, 0, radius, distance, rand() % 256, rand() % 256, rand() % 256, 0, 0);
-	distance += radius;
+	distance = 150;
+	radius = 5;
+	red = 153;
+	green = 61;
+	blue = 0;
+	Body mars = Body(distance, 0, 0, radius, distance, red, green, blue, 0, 0);
 
-	distance += radius;
-	radius = SUN_RADIUS;
-	Body jupiter = Body(0, 0, 0, radius, distance, rand() % 256, rand() % 256, rand() % 256, 0, 0);
-	distance += radius;
+	distance = 200;
+	radius = 11;
+	red = 176;
+	green = 127;
+	blue = 53;
+	Body jupiter = Body(distance, 0, 0, radius, distance, red, green, blue, 0, 0);
 
-	distance += radius;
-	radius = SUN_RADIUS;
-	Body saturn = Body(0, 0, 0, radius, distance, rand() % 256, rand() % 256, rand() % 256, 0, 0);
-	distance += radius;
+	distance = 250;
+	radius = 9;
+	red = 176;
+	green = 143;
+	blue = 54;
+	Body saturn = Body(distance, 0, 0, radius, distance, red, green, blue, 0, 0);
 
-	distance += radius;
-	radius = SUN_RADIUS;
-	Body uranus = Body(0, 0, 0, radius, distance, rand() % 256, rand() % 256, rand() % 256, 0, 0);
-	distance += radius;
+	distance = 300;
+	radius = 4;
+	red = 85;
+	green = 128;
+	blue = 170;
+	Body uranus = Body(distance, 0, 0, radius, distance, red, green, blue, 0, 0);
 
-	distance += radius;
-	radius = SUN_RADIUS;
-	Body neptune = Body(0, 0, 0, radius, distance, rand() % 256, rand() % 256, rand() % 256, 0, 0);
-	distance += radius;
+	distance = 350;
+	radius = 3;
+	red = 54;
+	green = 104;
+	blue = 150;
+	Body neptune = Body(distance, 0, 0, radius, distance, red, green, blue, 0, 0);
 
 	sun_and_planets[0] = sun;
 	sun_and_planets[1] = mercury;
@@ -257,7 +277,7 @@ void drawScene(void)
 	glLineWidth(1.0);
 
 	// Locate the camera at the tip of the cone and pointing in the direction of the cone.
-	gluLookAt(0.0, 100.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+	gluLookAt(0.0, 500.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 	// Draw all the asteroids in arrayAsteroids.
 	for (i = 0; i < NUMNER_OF_BODIES; i++)
 		sun_and_planets[i].draw();
@@ -279,7 +299,7 @@ void resize(int w, int h)
 	glViewport(0, 0, w, h);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glFrustum(-5.0, 5.0, -5.0, 5.0, 5.0, 250.0);
+	glFrustum(-5.0, 5.0, -5.0, 5.0, 5.0, 500.0);
 	glMatrixMode(GL_MODELVIEW);
 
 	// Pass the size of the OpenGL window.
@@ -359,7 +379,7 @@ int main(int argc, char **argv)
 	glutInitContextProfile(GLUT_COMPATIBILITY_PROFILE);
 
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
-	glutInitWindowSize(600, 600);
+	glutInitWindowSize(1000, 1000);
 	glutInitWindowPosition(0, 0);
 	glutCreateWindow("spaceTravel.cpp");
 	glutDisplayFunc(drawScene);
