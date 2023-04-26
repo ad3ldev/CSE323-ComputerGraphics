@@ -11,7 +11,6 @@
 static int width, height;
 static float angle = 0;
 static float xVal = -500, zVal = 0;
-static unsigned int spacecraft;
 static int frameCount = 0;
 static float speed = 20;
 static float orbit = rand() % 360;
@@ -85,13 +84,15 @@ void draw_spacecraft()
 	glPushMatrix();
 	glTranslatef(xVal, 0.0, zVal);
 	glRotatef(angle, 0.0, 1.0, 0.0);
-	glCallList(spacecraft);
+	glPushMatrix();
+	glRotatef(180.0, 0.0, 1.0, 0.0);
+	glColor3f(1.0, 1.0, 1.0);
+	glutWireCone(10.0, 40.0, 10, 10);
+	glPopMatrix();
 	glPopMatrix();
 }
 void draw_box()
 {
-	glLoadIdentity();
-	glPushMatrix();
 	glColor3f(1.0, 0.0, 0.0);
 	glRasterPos3f(-28.0, 25.0, -30.0);
 	glColor3f(1.0, 1.0, 1.0);
@@ -102,7 +103,6 @@ void draw_box()
 	glVertex3f(5.0, 5.0, -5.0);
 	glVertex3f(5.0, -5.0, -5.0);
 	glEnd();
-	glLineWidth(1.0);
 }
 void draw_solar()
 {
@@ -146,7 +146,7 @@ void orbiting(int value)
 void frameCounter(int value)
 {
 	if (value != 0) // No output the first time frameCounter() is called (from main()).
-		std::cout << "FPS = " << frameCount << std::endl;
+//		std::cout << "FPS = " << frameCount << std::endl;
 	frameCount = 0;
 	glutTimerFunc(1000, frameCounter, 1);
 }
@@ -154,17 +154,8 @@ void frameCounter(int value)
 // Initialization routine.
 void setup(void)
 {
-	glEnable(GL_LIGHTING);
-	glEnable(GL_LIGHT0);
-
-	spacecraft = glGenLists(1);
-	glNewList(spacecraft, GL_COMPILE);
-	glPushMatrix();
-	glRotatef(180.0, 0.0, 1.0, 0.0);
-	glColor3f(1.0, 1.0, 1.0);
-	glutWireCone(5.0, 10.0, 10, 10);
-	glPopMatrix();
-	glEndList();
+//	glEnable(GL_LIGHTING);
+//	glEnable(GL_LIGHT0);
 
 	float distance = 0;
 	float radius = 30;
@@ -284,15 +275,16 @@ void drawScene(void)
 			  1.0,
 			  0.0);
 	glLightfv(GL_LIGHT0, GL_POSITION, position);
-
-	draw_all();
+	draw_solar();
 
 	glViewport(width / 1.5, 0, width / 3.0, height / 3.0);
+	glLoadIdentity();
 	draw_box();
 
 	gluLookAt(0.0, 600.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 	glLightfv(GL_LIGHT0, GL_POSITION, position);
 	draw_all();
+	
 	glutSwapBuffers();
 }
 
