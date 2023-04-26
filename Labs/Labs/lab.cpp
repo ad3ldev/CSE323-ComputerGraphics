@@ -1,5 +1,11 @@
-#include "headers.hpp"
+#define _USE_MATH_DEFINES
 
+#include <cstdlib>
+#include <cmath>
+#include <iostream>
+
+#include <GL/glew.h>
+#include <GL/freeglut.h>
 #define NUMNER_OF_BODIES 10
 
 static int width, height;
@@ -48,7 +54,6 @@ Body::Body()
 	map = 0;
 }
 
-// Asteroid constructor.
 Body::Body(float x, float y, float z, float r, float d, float s, unsigned char colorR, unsigned char colorG, unsigned char colorB, unsigned int texture, unsigned map)
 {
 	centerX = x;
@@ -62,7 +67,6 @@ Body::Body(float x, float y, float z, float r, float d, float s, unsigned char c
 	color[2] = colorB;
 }
 
-// Function to draw asteroid.
 void Body::draw()
 {
 	if (radius > 0.0) // If asteroid exists.
@@ -75,7 +79,7 @@ void Body::draw()
 	}
 }
 
-Body sun_and_planets[NUMNER_OF_BODIES]; // Global array of asteroids.
+Body sun_and_planets[NUMNER_OF_BODIES];
 
 void draw_solar(){
 	int i = 0;
