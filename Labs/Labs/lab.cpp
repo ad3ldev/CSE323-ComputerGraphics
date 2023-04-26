@@ -3,24 +3,14 @@
 #define NUMNER_OF_BODIES 10
 
 // Globals.
-static long font = (long)GLUT_BITMAP_8_BY_13; // Font selection.
-static int width, height;					  // Size of the OpenGL window.
-static float angle = 0.0;					  // Angle of the spacecraft.
+static int width, height;
+static float angle = 90;					  // Angle of the spacecraft.
 static float xVal = -500, zVal = 0;			  // Co-ordinates of the spacecraft.
 static int isCollision = 0;					  // Is there collision between the spacecraft and an asteroid?
 static unsigned int spacecraft;				  // Display lists base index.
 static int frameCount = 0;
 static float speed = 20;
 static float orbit = rand()%360;
-
-// Routine to draw a bitmap character string.
-void writeBitmapString(void *font, char *string)
-{
-	char *c;
-	
-	for (c = string; *c != '\0'; c++)
-		glutBitmapCharacter(font, *c);
-}
 
 class Body
 {
@@ -250,16 +240,6 @@ void drawScene(void)
 	glViewport(0, 0, width, height); // demo
 	glLoadIdentity();
 	
-	// Write text in isolated (i.e., before gluLookAt) translate block.
-	glPushMatrix();
-	glColor3f(1.0, 0.0, 0.0);
-	glRasterPos3f(-28.0, 25.0, -30.0);
-	if (isCollision)
-		writeBitmapString((void *)font, "Cannot - will crash!");
-	glPopMatrix();
-	
-	// Fixed camera.
-	
 	gluLookAt(xVal - 10 * sin((M_PI / 180.0) * angle),
 			  0.0,
 			  zVal - 10 * cos((M_PI / 180.0) * angle),
@@ -283,9 +263,6 @@ void drawScene(void)
 	glPushMatrix();
 	glColor3f(1.0, 0.0, 0.0);
 	glRasterPos3f(-28.0, 25.0, -30.0);
-	if (isCollision)
-		writeBitmapString((void *)font, "Cannot - will crash!");
-	glPopMatrix();
 	
 	// Draw a vertical line on the left of the viewport to separate the two viewports
 	glColor3f(1.0, 1.0, 1.0);
