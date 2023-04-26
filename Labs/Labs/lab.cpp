@@ -11,7 +11,7 @@ static int isCollision = 0;					  // Is there collision between the spacecraft a
 static unsigned int spacecraft;				  // Display lists base index.
 static int frameCount = 0;
 static float speed = 20;
-static float rotate = 0;
+static float rotate = rand()%360;
 
 // Routine to draw a bitmap character string.
 void writeBitmapString(void *font, char *string)
