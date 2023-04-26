@@ -2,12 +2,10 @@
 
 #define NUMNER_OF_BODIES 10
 
-// Globals.
 static int width, height;
-static float angle = 90;					  // Angle of the spacecraft.
-static float xVal = -500, zVal = 0;			  // Co-ordinates of the spacecraft.
-static int isCollision = 0;					  // Is there collision between the spacecraft and an asteroid?
-static unsigned int spacecraft;				  // Display lists base index.
+static float angle = 90;
+static float xVal = -500, zVal = 0;
+static unsigned int spacecraft;
 static int frameCount = 0;
 static float speed = 20;
 static float orbit = rand()%360;
@@ -105,7 +103,6 @@ void draw_solar(){
 	glPopMatrix();
 	glPopMatrix();
 }
-// Routine to count the number of frames drawn every second.
 void orbiting(int value){
 	orbit += 1;
 	glutPostRedisplay();
@@ -125,7 +122,7 @@ void setup(void)
 	spacecraft = glGenLists(1);
 	glNewList(spacecraft, GL_COMPILE);
 	glPushMatrix();
-	glRotatef(180.0, 0.0, 1.0, 0.0); // To make the spacecraft point down the $z$-axis initially.
+	glRotatef(180.0, 0.0, 1.0, 0.0);
 	glColor3f(1.0, 1.0, 1.0);
 	glutWireCone(5.0, 10.0, 10, 10);
 	glPopMatrix();
@@ -226,7 +223,7 @@ void setup(void)
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 	
 	glutTimerFunc(0, frameCounter, 0);
-	glutTimerFunc(0, orbiting, 0);// Initial call of frameCounter().
+	glutTimerFunc(0, orbiting, 0);
 }
 
 // Drawing routine.
@@ -236,7 +233,6 @@ void drawScene(void)
 	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
-	// Beg	in left viewport.
 	glViewport(0, 0, width, height); // demo
 	glLoadIdentity();
 	
@@ -250,21 +246,13 @@ void drawScene(void)
 			  1.0,
 			  0.0);
 	
-	// Draw all the asteroids in arrayAsteroids.
 	draw_solar();
 	
-	// End left viewport.
-	
-	// Begin right viewport.
 	glViewport(width / 1.5, 0, width / 3.0, height / 3.0);
 	glLoadIdentity();
-	
-	// Write text in isolated (i.e., before gluLookAt) translate block.
 	glPushMatrix();
 	glColor3f(1.0, 0.0, 0.0);
 	glRasterPos3f(-28.0, 25.0, -30.0);
-	
-	// Draw a vertical line on the left of the viewport to separate the two viewports
 	glColor3f(1.0, 1.0, 1.0);
 	glLineWidth(2.0);
 	glBegin(GL_LINE_LOOP);
@@ -275,18 +263,14 @@ void drawScene(void)
 	glEnd();
 	glLineWidth(1.0);
 	
-	// Locate the camera at the tip of the cone and pointing in the direction of the cone.
 	gluLookAt(0.0, 600.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
-	// Draw all the asteroids in arrayAsteroids.
 	draw_solar();
 	
-	// Draw spacecraft.
 	glPushMatrix();
 	glTranslatef(xVal, 0.0, zVal);
 	glRotatef(angle, 0.0, 1.0, 0.0);
 	glCallList(spacecraft);
 	glPopMatrix();
-	// End right viewport.
 	glutSwapBuffers();
 }
 
@@ -298,8 +282,6 @@ void resize(int w, int h)
 	glLoadIdentity();
 	glFrustum(-5.0, 5.0, -5.0, 5.0, 5.0, 2000.0);
 	glMatrixMode(GL_MODELVIEW);
-	
-	// Pass the size of the OpenGL window.
 	width = w;
 	height = h;
 }
@@ -317,7 +299,6 @@ void keyInput(unsigned char key, int x, int y)
 	}
 }
 
-// Callback routine for non-ASCII key entry.
 void specialKeyInput(int key, int x, int y)
 {
 	float tempxVal = xVal, tempzVal = zVal, tempAngle = angle;
