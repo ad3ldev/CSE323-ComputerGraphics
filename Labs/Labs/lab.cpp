@@ -1,6 +1,6 @@
 #include "headers.hpp"
 
-#define NUMNER_OF_BODIES 9
+#define NUMNER_OF_BODIES 10
 
 // Globals.
 static long font = (long)GLUT_BITMAP_8_BY_13; // Font selection.
@@ -90,8 +90,9 @@ void Body::draw()
 Body sun_and_planets[NUMNER_OF_BODIES]; // Global array of asteroids.
 
 void draw_solar(){
-	sun_and_planets[0].draw();
-	for (int i = 1; i < NUMNER_OF_BODIES - 1; i++){
+	int i = 0;
+	sun_and_planets[i].draw();
+	for (i = 0; i < NUMNER_OF_BODIES - 1; i++){
 		glPushMatrix();
 		glTranslatef(sun_and_planets[i].getDistance(), 0, sun_and_planets[i].getDistance());
 		glTranslatef(-sun_and_planets[i].getDistance(), 0, -sun_and_planets[i].getDistance());
@@ -100,6 +101,19 @@ void draw_solar(){
 		sun_and_planets[i].draw();
 		glPopMatrix();
 	}
+	glPushMatrix();
+	glTranslatef(sun_and_planets[3].getDistance(), 0, sun_and_planets[3].getDistance());
+	glTranslatef(-sun_and_planets[3].getDistance(), 0, -sun_and_planets[3].getDistance());
+	glRotatef(orbit*sun_and_planets[3].getSpeed(), 0, 1, 0);
+	glTranslatef(sun_and_planets[3].getDistance(), 0, sun_and_planets[3].getDistance());
+	glPushMatrix();
+	glTranslatef(sun_and_planets[i].getDistance(), 0, sun_and_planets[i].getDistance());
+	glTranslatef(-sun_and_planets[i].getDistance(), 0, -sun_and_planets[i].getDistance());
+	glRotatef(orbit*sun_and_planets[i].getSpeed(), 0, 1, 0);
+	glTranslatef(sun_and_planets[i].getDistance(), 0, sun_and_planets[i].getDistance());
+	sun_and_planets[i].draw();
+	glPopMatrix();
+	glPopMatrix();
 }
 // Routine to count the number of frames drawn every second.
 void orbiting(int value){
@@ -199,7 +213,13 @@ void setup(void)
 	speed = 1;
 	Body neptune = Body(0, 0, 0, radius, distance, speed, red, green, blue, 0, 0);
 	
-	
+	distance = 25;
+	radius = 5;
+	red = 255;
+	green = 255;
+	blue = 255;
+	speed = 10;
+	Body moon = Body(0, 0, 0, radius, distance, speed, red, green, blue, 0, 0);
 
 	sun_and_planets[0] = sun;
 	sun_and_planets[1] = mercury;
@@ -210,6 +230,7 @@ void setup(void)
 	sun_and_planets[6] = saturn;
 	sun_and_planets[7] = uranus;
 	sun_and_planets[8] = neptune;
+	sun_and_planets[9] = moon;
 
 	glEnable(GL_DEPTH_TEST);
 	glClearColor(0.0, 0.0, 0.0, 0.0);
@@ -231,7 +252,7 @@ int checkSpheresIntersection(float x1, float y1, float z1, float r1,
 // Collision detection is approximate as instead of the spacecraft we use a bounding sphere.
 int asteroidCraftCollision(float x, float z, float a)
 {
-	int i, j;
+	int i;
 
 	// Check for collision with each asteroid.
 	for (int i = 0; i < NUMNER_OF_BODIES; i++)
