@@ -146,7 +146,7 @@ void orbiting(int value)
 void frameCounter(int value)
 {
 	if (value != 0) // No output the first time frameCounter() is called (from main()).
-//		std::cout << "FPS = " << frameCount << std::endl;
+		std::cout << "FPS = " << frameCount << std::endl;
 	frameCount = 0;
 	glutTimerFunc(1000, frameCounter, 1);
 }
@@ -258,7 +258,7 @@ void setup(void)
 // Drawing routine.
 void drawScene(void)
 {
-	GLfloat position[] = {0.0, 0.0, 1.5, 1.0};
+	GLfloat position[] = {0.0, 0.0, 0, 1.0};
 	frameCount++; // Increment number of frames every redraw.
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
