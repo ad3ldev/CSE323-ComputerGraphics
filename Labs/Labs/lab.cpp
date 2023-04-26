@@ -1,24 +1,22 @@
 #include "headers.hpp"
-#include "planet.hpp"
 
 #define SUN_RADIUS 30
 #define NUMNER_OF_BODIES 9
 
 // Globals.
-static long font = (long)GLUT_BITMAP_8_BY_13; // Font selection.
-static int width, height; // Size of the OpenGL window.
-static float angle = 0.0; // Angle of the spacecraft.
-static float xVal = -50, zVal = 0; // Co-ordinates of the spacecraft.
-static int isCollision = 0; // Is there collision between the spacecraft and an asteroid?
-static unsigned int spacecraft; // Display lists base index.
-static int frameCount = 0; // Number of frames
+static GLuint cylinders;
+static int wireframe = 0;
+static float x_rotate = 0;
+static float y_rotate = 90;
+static float z_rotate = 0;
 
 // Routine to draw a bitmap character string.
 void writeBitmapString(void *font, char *string)
 {
 	char *c;
-	
-	for (c = string; *c != '\0'; c++) glutBitmapCharacter(font, *c);
+
+	for (c = string; *c != '\0'; c++)
+		glutBitmapCharacter(font, *c);
 }
 
 class Body
@@ -31,12 +29,17 @@ public:
 	float getCenterY() { return centerY; }
 	float getCenterZ() { return centerZ; }
 	float getRadius() { return radius; }
-	float getDistance() {return distance; }
-	
-	unsigned int getTexture(){ return texture;}
-	unsigned int getMap() { return map; }
-	void draw();
-	
+	float getDistance() { return distance; }
+
+	//	glRotatef(x_rotate, 1, 0, 0);
+	//	glRotatef(y_rotate, 0, 1, 0);
+	//	glRotatef(z_rotate, 0, 0, 1);
+
+	float angle = 0;
+	float x_translate = radius * sin(to_rad(angle));
+	float y_translate = radius * cos(to_rad(angle));
+	float z_translate = height;
+
 private:
 	float centerX, centerY, centerZ, radius, distance;
 	unsigned char color[3];
@@ -54,7 +57,7 @@ Body::Body()
 	color[0] = 0;
 	color[1] = 0;
 	color[2] = 0;
-	
+
 	texture = 0;
 	map = 0;
 }
@@ -107,49 +110,49 @@ void setup(void)
 	glutWireCone(5.0, 10.0, 10, 10);
 	glPopMatrix();
 	glEndList();
-	
+
 	float distance = SUN_RADIUS;
 	float radius = SUN_RADIUS;
-	Body sun = Body(0, 0, 0, radius, distance, rand()%256, rand()%256, rand()%256, 0, 0);
-	
+	Body sun = Body(0, 0, 0, radius, distance, rand() % 256, rand() % 256, rand() % 256, 0, 0);
+
 	distance += radius;
 	radius = SUN_RADIUS;
-	Body mercury = Body(0, 0, 0, radius, distance, rand()%256, rand()%256, rand()%256, 0, 0);
-	
+	Body mercury = Body(0, 0, 0, radius, distance, rand() % 256, rand() % 256, rand() % 256, 0, 0);
+
 	distance += radius;
 	radius = SUN_RADIUS;
-	Body venus = Body(0, 0, 0, radius, distance, rand()%256, rand()%256, rand()%256, 0, 0);
+	Body venus = Body(0, 0, 0, radius, distance, rand() % 256, rand() % 256, rand() % 256, 0, 0);
 	distance += radius;
-	
-	distance += radius;
-	radius = SUN_RADIUS;
-	Body earth = Body(0, 0, 0, radius, distance, rand()%256, rand()%256, rand()%256, 0, 0);
-	
+
 	distance += radius;
 	radius = SUN_RADIUS;
-	Body mars = Body(0, 0, 0, radius, distance, rand()%256, rand()%256, rand()%256, 0, 0);
-	distance += radius;
-	
-	distance += radius;
-	radius = SUN_RADIUS;
-	Body jupiter = Body(0, 0, 0, radius, distance, rand()%256, rand()%256, rand()%256, 0, 0);
-	distance += radius;
-	
+	Body earth = Body(0, 0, 0, radius, distance, rand() % 256, rand() % 256, rand() % 256, 0, 0);
+
 	distance += radius;
 	radius = SUN_RADIUS;
-	Body saturn = Body(0, 0, 0, radius, distance, rand()%256, rand()%256, rand()%256, 0, 0);
+	Body mars = Body(0, 0, 0, radius, distance, rand() % 256, rand() % 256, rand() % 256, 0, 0);
 	distance += radius;
-	
-	distance += radius;
-	radius = SUN_RADIUS;
-	Body uranus = Body(0, 0, 0, radius, distance, rand()%256, rand()%256, rand()%256, 0, 0);
-	distance += radius;
-	
+
 	distance += radius;
 	radius = SUN_RADIUS;
-	Body neptune = Body(0, 0, 0, radius, distance, rand()%256, rand()%256, rand()%256, 0, 0);
+	Body jupiter = Body(0, 0, 0, radius, distance, rand() % 256, rand() % 256, rand() % 256, 0, 0);
 	distance += radius;
-	
+
+	distance += radius;
+	radius = SUN_RADIUS;
+	Body saturn = Body(0, 0, 0, radius, distance, rand() % 256, rand() % 256, rand() % 256, 0, 0);
+	distance += radius;
+
+	distance += radius;
+	radius = SUN_RADIUS;
+	Body uranus = Body(0, 0, 0, radius, distance, rand() % 256, rand() % 256, rand() % 256, 0, 0);
+	distance += radius;
+
+	distance += radius;
+	radius = SUN_RADIUS;
+	Body neptune = Body(0, 0, 0, radius, distance, rand() % 256, rand() % 256, rand() % 256, 0, 0);
+	distance += radius;
+
 	sun_and_planets[0] = sun;
 	sun_and_planets[1] = mercury;
 	sun_and_planets[2] = venus;
@@ -159,10 +162,10 @@ void setup(void)
 	sun_and_planets[6] = saturn;
 	sun_and_planets[7] = uranus;
 	sun_and_planets[8] = neptune;
-	
+
 	glEnable(GL_DEPTH_TEST);
 	glClearColor(0.0, 0.0, 0.0, 0.0);
-	
+
 	glutTimerFunc(0, frameCounter, 0); // Initial call of frameCounter().
 }
 
@@ -171,7 +174,7 @@ void setup(void)
 int checkSpheresIntersection(float x1, float y1, float z1, float r1,
 							 float x2, float y2, float z2, float r2)
 {
-	return ((x1 - x2)*(x1 - x2) + (y1 - y2)*(y1 - y2) + (z1 - z2)*(z1 - z2) <= (r1 + r2)*(r1 + r2));
+	return ((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2) + (z1 - z2) * (z1 - z2) <= (r1 + r2) * (r1 + r2));
 }
 
 // Function to check if the spacecraft collides with an asteroid when the center of the base
@@ -180,9 +183,10 @@ int checkSpheresIntersection(float x1, float y1, float z1, float r1,
 int asteroidCraftCollision(float x, float z, float a)
 {
 	int i, j;
-	
+
 	// Check for collision with each asteroid.
-	for (int i = 0; i < NUMNER_OF_BODIES ; i++){
+	for (int i = 0; i < NUMNER_OF_BODIES; i++)
+	{
 		if (sun_and_planets[i].getRadius() > 0) // If asteroid exists.
 			if (checkSpheresIntersection(x - 5 * sin((M_PI / 180.0) * a), 0.0,
 										 z - 5 * cos((M_PI / 180.0) * a), 7.072,
@@ -190,7 +194,7 @@ int asteroidCraftCollision(float x, float z, float a)
 										 sun_and_planets[i].getCenterZ(), sun_and_planets[i].getRadius()))
 				return 1;
 	}
-	
+
 	return 0;
 }
 
@@ -198,23 +202,24 @@ int asteroidCraftCollision(float x, float z, float a)
 void drawScene(void)
 {
 	frameCount++; // Increment number of frames every redraw.
-	
+
 	int i, j;
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	
+
 	// Beg	in left viewport.
-	glViewport(0, 0, width, height);//demo
+	glViewport(0, 0, width, height); // demo
 	glLoadIdentity();
-	
+
 	// Write text in isolated (i.e., before gluLookAt) translate block.
 	glPushMatrix();
 	glColor3f(1.0, 0.0, 0.0);
 	glRasterPos3f(-28.0, 25.0, -30.0);
-	if (isCollision) writeBitmapString((void*)font, "Cannot - will crash!");
+	if (isCollision)
+		writeBitmapString((void *)font, "Cannot - will crash!");
 	glPopMatrix();
-	
+
 	// Fixed camera.
-	
+
 	gluLookAt(xVal - 10 * sin((M_PI / 180.0) * angle),
 			  0.0,
 			  zVal - 10 * cos((M_PI / 180.0) * angle),
@@ -224,24 +229,25 @@ void drawScene(void)
 			  0.0,
 			  1.0,
 			  0.0);
-	
+
 	// Draw all the asteroids in arrayAsteroids.
-	for (i = 0; i<NUMNER_OF_BODIES; i++)
+	for (i = 0; i < NUMNER_OF_BODIES; i++)
 		sun_and_planets[i].draw();
-	
+
 	// End left viewport.
-	
+
 	// Begin right viewport.
-	glViewport(width/1.5, 0, width / 3.0, height/3.0);
+	glViewport(width / 1.5, 0, width / 3.0, height / 3.0);
 	glLoadIdentity();
-	
+
 	// Write text in isolated (i.e., before gluLookAt) translate block.
 	glPushMatrix();
 	glColor3f(1.0, 0.0, 0.0);
 	glRasterPos3f(-28.0, 25.0, -30.0);
-	if (isCollision) writeBitmapString((void*)font, "Cannot - will crash!");
+	if (isCollision)
+		writeBitmapString((void *)font, "Cannot - will crash!");
 	glPopMatrix();
-	
+
 	// Draw a vertical line on the left of the viewport to separate the two viewports
 	glColor3f(1.0, 1.0, 1.0);
 	glLineWidth(2.0);
@@ -252,14 +258,13 @@ void drawScene(void)
 	glVertex3f(5.0, -5.0, -5.0);
 	glEnd();
 	glLineWidth(1.0);
-	
+
 	// Locate the camera at the tip of the cone and pointing in the direction of the cone.
 	gluLookAt(0.0, 100.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 	// Draw all the asteroids in arrayAsteroids.
-	for (i = 0; i<NUMNER_OF_BODIES; i++)
+	for (i = 0; i < NUMNER_OF_BODIES; i++)
 		sun_and_planets[i].draw();
-	
-	
+
 	// Draw spacecraft.
 	glPushMatrix();
 	glTranslatef(xVal, 0.0, zVal);
@@ -267,7 +272,7 @@ void drawScene(void)
 	glCallList(spacecraft);
 	glPopMatrix();
 	// End right viewport.
-	
+
 	glutSwapBuffers();
 }
 
@@ -279,7 +284,7 @@ void resize(int w, int h)
 	glLoadIdentity();
 	glFrustum(-5.0, 5.0, -5.0, 5.0, 5.0, 250.0);
 	glMatrixMode(GL_MODELVIEW);
-	
+
 	// Pass the size of the OpenGL window.
 	width = w;
 	height = h;
@@ -290,11 +295,11 @@ void keyInput(unsigned char key, int x, int y)
 {
 	switch (key)
 	{
-		case 27:
-			exit(0);
-			break;
-		default:
-			break;
+	case 27:
+		exit(0);
+		break;
+	default:
+		break;
 	}
 }
 
@@ -302,10 +307,12 @@ void keyInput(unsigned char key, int x, int y)
 void specialKeyInput(int key, int x, int y)
 {
 	float tempxVal = xVal, tempzVal = zVal, tempAngle = angle;
-	
+
 	// Compute next position.
-	if (key == GLUT_KEY_LEFT) tempAngle = angle + 5.0;
-	if (key == GLUT_KEY_RIGHT) tempAngle = angle - 5.0;
+	if (key == GLUT_KEY_LEFT)
+		tempAngle = angle + 5.0;
+	if (key == GLUT_KEY_RIGHT)
+		tempAngle = angle - 5.0;
 	if (key == GLUT_KEY_UP)
 	{
 		tempxVal = xVal - sin(angle * M_PI / 180.0);
@@ -316,11 +323,13 @@ void specialKeyInput(int key, int x, int y)
 		tempxVal = xVal + sin(angle * M_PI / 180.0);
 		tempzVal = zVal + cos(angle * M_PI / 180.0);
 	}
-	
+
 	// Angle correction.
-	if (tempAngle > 360.0) tempAngle -= 360.0;
-	if (tempAngle < 0.0) tempAngle += 360.0;
-	
+	if (tempAngle > 360.0)
+		tempAngle -= 360.0;
+	if (tempAngle < 0.0)
+		tempAngle += 360.0;
+
 	// Move spacecraft to next position only if there will not be collision with an asteroid.
 	if (!asteroidCraftCollision(tempxVal, tempzVal, tempAngle))
 	{
@@ -329,8 +338,9 @@ void specialKeyInput(int key, int x, int y)
 		zVal = tempzVal;
 		angle = tempAngle;
 	}
-	else isCollision = 1;
-	
+	else
+		isCollision = 1;
+
 	glutPostRedisplay();
 }
 
@@ -339,7 +349,7 @@ void printInteraction(void)
 {
 	std::cout << "Interaction:" << std::endl;
 	std::cout << "Press the left/right arrow keys to turn the craft." << std::endl
-	<< "Press the up/down arrow keys to move the craft." << std::endl;
+			  << "Press the up/down arrow keys to move the craft." << std::endl;
 }
 
 // Main routine.
@@ -347,10 +357,10 @@ int main(int argc, char **argv)
 {
 	printInteraction();
 	glutInit(&argc, argv);
-	
+
 	glutInitContextVersion(4, 3);
 	glutInitContextProfile(GLUT_COMPATIBILITY_PROFILE);
-	
+
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
 	glutInitWindowSize(600, 600);
 	glutInitWindowPosition(0, 0);
@@ -359,11 +369,11 @@ int main(int argc, char **argv)
 	glutReshapeFunc(resize);
 	glutKeyboardFunc(keyInput);
 	glutSpecialFunc(specialKeyInput);
-	
+
 	glewExperimental = GL_TRUE;
 	glewInit();
-	
+
 	setup();
-	
+
 	glutMainLoop();
 }
