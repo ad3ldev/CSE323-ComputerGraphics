@@ -6,10 +6,11 @@
 static long font = (long)GLUT_BITMAP_8_BY_13; // Font selection.
 static int width, height;					  // Size of the OpenGL window.
 static float angle = 0.0;					  // Angle of the spacecraft.
-static float xVal = -50, zVal = 0;			  // Co-ordinates of the spacecraft.
+static float xVal = -500, zVal = 0;			  // Co-ordinates of the spacecraft.
 static int isCollision = 0;					  // Is there collision between the spacecraft and an asteroid?
 static unsigned int spacecraft;				  // Display lists base index.
-static int frameCount = 0;					  // Number of frames
+static int frameCount = 0;
+static float speed = 20;
 
 // Routine to draw a bitmap character string.
 void writeBitmapString(void *font, char *string)
@@ -112,60 +113,60 @@ void setup(void)
 	unsigned int red = 255;
 	unsigned int green = 255;
 	unsigned int blue = 0;
-	Body sun = Body(0, 0, 0, radius, distance, red, green, blue, 0, 0);
+	Body sun = Body(distance, 0, 0, radius, distance, red, green, blue, 0, 0);
 
-	distance = 38;
+	distance = 50;
 	radius = 4;
 	red = 26;
 	green = 26;
 	blue = 26;
 	Body mercury = Body(distance, 0, 0, radius, distance, red, green, blue, 0, 0);
 
-	distance = 72;
+	distance = 100;
 	radius = 9;
 	red = 230;
 	green = 230;
 	blue = 230;
 	Body venus = Body(distance, 0, 0, radius, distance, red, green, blue, 0, 0);
 
-	distance = 100;
+	distance = 150;
 	radius = 10;
 	red = 47;
 	green = 106;
 	blue = 105;
 	Body earth = Body(distance, 0, 0, radius, distance, red, green, blue, 0, 0);
 
-	distance = 150;
+	distance = 200;
 	radius = 5;
 	red = 153;
 	green = 61;
 	blue = 0;
 	Body mars = Body(distance, 0, 0, radius, distance, red, green, blue, 0, 0);
 
-	distance = 200;
-	radius = 11;
+	distance = 250;
+	radius = 20;
 	red = 176;
 	green = 127;
 	blue = 53;
 	Body jupiter = Body(distance, 0, 0, radius, distance, red, green, blue, 0, 0);
 
-	distance = 250;
-	radius = 9;
+	distance = 300;
+	radius = 15;
 	red = 176;
 	green = 143;
 	blue = 54;
 	Body saturn = Body(distance, 0, 0, radius, distance, red, green, blue, 0, 0);
 
-	distance = 300;
+	distance = 350;
 	radius = 4;
-	red = 85;
+	red = 13;
 	green = 128;
 	blue = 170;
 	Body uranus = Body(distance, 0, 0, radius, distance, red, green, blue, 0, 0);
 
-	distance = 350;
+	distance = 400;
 	radius = 3;
-	red = 54;
+	red = 12;
 	green = 104;
 	blue = 150;
 	Body neptune = Body(distance, 0, 0, radius, distance, red, green, blue, 0, 0);
@@ -299,7 +300,7 @@ void resize(int w, int h)
 	glViewport(0, 0, w, h);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glFrustum(-5.0, 5.0, -5.0, 5.0, 5.0, 500.0);
+	glFrustum(-5.0, 5.0, -5.0, 5.0, 5.0, 2000.0);
 	glMatrixMode(GL_MODELVIEW);
 
 	// Pass the size of the OpenGL window.
@@ -332,13 +333,13 @@ void specialKeyInput(int key, int x, int y)
 		tempAngle = angle - 5.0;
 	if (key == GLUT_KEY_UP)
 	{
-		tempxVal = xVal - sin(angle * M_PI / 180.0);
-		tempzVal = zVal - cos(angle * M_PI / 180.0);
+		tempxVal = xVal - speed*sin(angle * M_PI / 180.0);
+		tempzVal = zVal - speed*cos(angle * M_PI / 180.0);
 	}
 	if (key == GLUT_KEY_DOWN)
 	{
-		tempxVal = xVal + sin(angle * M_PI / 180.0);
-		tempzVal = zVal + cos(angle * M_PI / 180.0);
+		tempxVal = xVal + speed*sin(angle * M_PI / 180.0);
+		tempzVal = zVal + speed*cos(angle * M_PI / 180.0);
 	}
 
 	// Angle correction.
@@ -379,7 +380,7 @@ int main(int argc, char **argv)
 	glutInitContextProfile(GLUT_COMPATIBILITY_PROFILE);
 
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
-	glutInitWindowSize(1000, 1000);
+	glutInitWindowSize(900, 900);
 	glutInitWindowPosition(0, 0);
 	glutCreateWindow("spaceTravel.cpp");
 	glutDisplayFunc(drawScene);
