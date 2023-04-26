@@ -4,11 +4,13 @@
 #define NUMNER_OF_BODIES 9
 
 // Globals.
-static GLuint cylinders;
-static int wireframe = 0;
-static float x_rotate = 0;
-static float y_rotate = 90;
-static float z_rotate = 0;
+static long font = (long)GLUT_BITMAP_8_BY_13; // Font selection.
+static int width, height;					  // Size of the OpenGL window.
+static float angle = 0.0;					  // Angle of the spacecraft.
+static float xVal = -50, zVal = 0;			  // Co-ordinates of the spacecraft.
+static int isCollision = 0;					  // Is there collision between the spacecraft and an asteroid?
+static unsigned int spacecraft;				  // Display lists base index.
+static int frameCount = 0;					  // Number of frames
 
 // Routine to draw a bitmap character string.
 void writeBitmapString(void *font, char *string)
@@ -31,14 +33,9 @@ public:
 	float getRadius() { return radius; }
 	float getDistance() { return distance; }
 
-	//	glRotatef(x_rotate, 1, 0, 0);
-	//	glRotatef(y_rotate, 0, 1, 0);
-	//	glRotatef(z_rotate, 0, 0, 1);
-
-	float angle = 0;
-	float x_translate = radius * sin(to_rad(angle));
-	float y_translate = radius * cos(to_rad(angle));
-	float z_translate = height;
+	unsigned int getTexture() { return texture; }
+	unsigned int getMap() { return map; }
+	void draw();
 
 private:
 	float centerX, centerY, centerZ, radius, distance;
