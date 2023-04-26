@@ -11,7 +11,7 @@ static int isCollision = 0;					  // Is there collision between the spacecraft a
 static unsigned int spacecraft;				  // Display lists base index.
 static int frameCount = 0;
 static float speed = 20;
-static float rotate = rand()%360;
+static float orbit = rand()%360;
 
 // Routine to draw a bitmap character string.
 void writeBitmapString(void *font, char *string)
@@ -91,21 +91,21 @@ Body sun_and_planets[NUMNER_OF_BODIES]; // Global array of asteroids.
 
 void draw_solar(){
 	sun_and_planets[0].draw();
-	for (int i = 1; i < NUMNER_OF_BODIES; i++){
+	for (int i = 1; i < NUMNER_OF_BODIES - 1; i++){
 		glPushMatrix();
 		glTranslatef(sun_and_planets[i].getDistance(), 0, sun_and_planets[i].getDistance());
 		glTranslatef(-sun_and_planets[i].getDistance(), 0, -sun_and_planets[i].getDistance());
-		glRotatef(rotate*sun_and_planets[i].getSpeed(), 0, 1, 0);
+		glRotatef(orbit*sun_and_planets[i].getSpeed(), 0, 1, 0);
 		glTranslatef(sun_and_planets[i].getDistance(), 0, sun_and_planets[i].getDistance());
 		sun_and_planets[i].draw();
 		glPopMatrix();
 	}
 }
 // Routine to count the number of frames drawn every second.
-void rotating(int value){
-	rotate += 1;
+void orbiting(int value){
+	orbit += 1;
 	glutPostRedisplay();
-	glutTimerFunc(100, rotating, 1);
+	glutTimerFunc(100, orbiting, 1);
 }
 void frameCounter(int value)
 {
@@ -198,6 +198,8 @@ void setup(void)
 	blue = 150;
 	speed = 1;
 	Body neptune = Body(0, 0, 0, radius, distance, speed, red, green, blue, 0, 0);
+	
+	
 
 	sun_and_planets[0] = sun;
 	sun_and_planets[1] = mercury;
@@ -213,7 +215,7 @@ void setup(void)
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 
 	glutTimerFunc(0, frameCounter, 0);
-	glutTimerFunc(0, rotating, 0);// Initial call of frameCounter().
+	glutTimerFunc(0, orbiting, 0);// Initial call of frameCounter().
 }
 
 // Function to check if two spheres centered at (x1,y1,z1) and (x2,y2,z2) with
