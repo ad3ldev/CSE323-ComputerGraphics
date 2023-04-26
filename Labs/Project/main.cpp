@@ -9,7 +9,7 @@
 #define NUMNER_OF_BODIES 10
 
 static int width, height;
-static float angle = 90;
+static float angle = 0;
 static float xVal = -500, zVal = 0;
 static unsigned int spacecraft;
 static int frameCount = 0;
@@ -80,7 +80,30 @@ void Body::draw()
 }
 
 Body sun_and_planets[NUMNER_OF_BODIES];
-
+void draw_spacecraft()
+{
+	glPushMatrix();
+	glTranslatef(xVal, 0.0, zVal);
+	glRotatef(angle, 0.0, 1.0, 0.0);
+	glCallList(spacecraft);
+	glPopMatrix();
+}
+void draw_box()
+{
+	glLoadIdentity();
+	glPushMatrix();
+	glColor3f(1.0, 0.0, 0.0);
+	glRasterPos3f(-28.0, 25.0, -30.0);
+	glColor3f(1.0, 1.0, 1.0);
+	glLineWidth(2.0);
+	glBegin(GL_LINE_LOOP);
+	glVertex3f(-5.0, -5.0, -5.0);
+	glVertex3f(-5.0, 5.0, -5.0);
+	glVertex3f(5.0, 5.0, -5.0);
+	glVertex3f(5.0, -5.0, -5.0);
+	glEnd();
+	glLineWidth(1.0);
+}
 void draw_solar()
 {
 	int i = 0;
@@ -109,6 +132,11 @@ void draw_solar()
 	glPopMatrix();
 	glPopMatrix();
 }
+void draw_all()
+{
+	draw_solar();
+	draw_spacecraft();
+}
 void orbiting(int value)
 {
 	orbit += 1;
@@ -126,6 +154,9 @@ void frameCounter(int value)
 // Initialization routine.
 void setup(void)
 {
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
+
 	spacecraft = glGenLists(1);
 	glNewList(spacecraft, GL_COMPILE);
 	glPushMatrix();
@@ -236,10 +267,10 @@ void setup(void)
 // Drawing routine.
 void drawScene(void)
 {
+	GLfloat position[] = {0.0, 0.0, 1.5, 1.0};
 	frameCount++; // Increment number of frames every redraw.
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 	glViewport(0, 0, width, height); // demo
 	glLoadIdentity();
 
@@ -252,32 +283,16 @@ void drawScene(void)
 			  0.0,
 			  1.0,
 			  0.0);
+	glLightfv(GL_LIGHT0, GL_POSITION, position);
 
-	draw_solar();
+	draw_all();
 
 	glViewport(width / 1.5, 0, width / 3.0, height / 3.0);
-	glLoadIdentity();
-	glPushMatrix();
-	glColor3f(1.0, 0.0, 0.0);
-	glRasterPos3f(-28.0, 25.0, -30.0);
-	glColor3f(1.0, 1.0, 1.0);
-	glLineWidth(2.0);
-	glBegin(GL_LINE_LOOP);
-	glVertex3f(-5.0, -5.0, -5.0);
-	glVertex3f(-5.0, 5.0, -5.0);
-	glVertex3f(5.0, 5.0, -5.0);
-	glVertex3f(5.0, -5.0, -5.0);
-	glEnd();
-	glLineWidth(1.0);
+	draw_box();
 
 	gluLookAt(0.0, 600.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
-	draw_solar();
-
-	glPushMatrix();
-	glTranslatef(xVal, 0.0, zVal);
-	glRotatef(angle, 0.0, 1.0, 0.0);
-	glCallList(spacecraft);
-	glPopMatrix();
+	glLightfv(GL_LIGHT0, GL_POSITION, position);
+	draw_all();
 	glutSwapBuffers();
 }
 
@@ -331,6 +346,11 @@ void specialKeyInput(int key, int x, int y)
 		tempAngle -= 360.0;
 	if (tempAngle < 0.0)
 		tempAngle += 360.0;
+
+	// Move spacecraft to next position only if there will not be collision with an asteroid.
+	xVal = tempxVal;
+	zVal = tempzVal;
+	angle = tempAngle;
 
 	glutPostRedisplay();
 }

@@ -9,12 +9,12 @@
 #define NUMNER_OF_BODIES 10
 
 static int width, height;
-static float angle = 90;
+static float angle = 0;
 static float xVal = -500, zVal = 0;
 static unsigned int spacecraft;
 static int frameCount = 0;
 static float speed = 20;
-static float orbit = rand()%360;
+static float orbit = rand() % 360;
 
 class Body
 {
@@ -27,11 +27,11 @@ public:
 	float getCenterZ() { return centerZ; }
 	float getRadius() { return radius; }
 	float getDistance() { return distance; }
-	float getSpeed() {return speed;}
+	float getSpeed() { return speed; }
 	unsigned int getTexture() { return texture; }
 	unsigned int getMap() { return map; }
 	void draw();
-	
+
 private:
 	float centerX, centerY, centerZ, radius, distance, speed;
 	unsigned char color[3];
@@ -49,7 +49,7 @@ Body::Body()
 	color[0] = 0;
 	color[1] = 0;
 	color[2] = 0;
-	
+
 	texture = 0;
 	map = 0;
 }
@@ -80,15 +80,40 @@ void Body::draw()
 }
 
 Body sun_and_planets[NUMNER_OF_BODIES];
-
-void draw_solar(){
+void draw_spacecraft()
+{
+	glPushMatrix();
+	glTranslatef(xVal, 0.0, zVal);
+	glRotatef(angle, 0.0, 1.0, 0.0);
+	glCallList(spacecraft);
+	glPopMatrix();
+}
+void draw_box()
+{
+	glLoadIdentity();
+	glPushMatrix();
+	glColor3f(1.0, 0.0, 0.0);
+	glRasterPos3f(-28.0, 25.0, -30.0);
+	glColor3f(1.0, 1.0, 1.0);
+	glLineWidth(2.0);
+	glBegin(GL_LINE_LOOP);
+	glVertex3f(-5.0, -5.0, -5.0);
+	glVertex3f(-5.0, 5.0, -5.0);
+	glVertex3f(5.0, 5.0, -5.0);
+	glVertex3f(5.0, -5.0, -5.0);
+	glEnd();
+	glLineWidth(1.0);
+}
+void draw_solar()
+{
 	int i = 0;
 	sun_and_planets[i].draw();
-	for (i = 0; i < NUMNER_OF_BODIES - 1; i++){
+	for (i = 0; i < NUMNER_OF_BODIES - 1; i++)
+	{
 		glPushMatrix();
 		glTranslatef(sun_and_planets[i].getDistance(), 0, sun_and_planets[i].getDistance());
 		glTranslatef(-sun_and_planets[i].getDistance(), 0, -sun_and_planets[i].getDistance());
-		glRotatef(orbit*sun_and_planets[i].getSpeed(), 0, 1, 0);
+		glRotatef(orbit * sun_and_planets[i].getSpeed(), 0, 1, 0);
 		glTranslatef(sun_and_planets[i].getDistance(), 0, sun_and_planets[i].getDistance());
 		sun_and_planets[i].draw();
 		glPopMatrix();
@@ -96,18 +121,24 @@ void draw_solar(){
 	glPushMatrix();
 	glTranslatef(sun_and_planets[3].getDistance(), 0, sun_and_planets[3].getDistance());
 	glTranslatef(-sun_and_planets[3].getDistance(), 0, -sun_and_planets[3].getDistance());
-	glRotatef(orbit*sun_and_planets[3].getSpeed(), 0, 1, 0);
+	glRotatef(orbit * sun_and_planets[3].getSpeed(), 0, 1, 0);
 	glTranslatef(sun_and_planets[3].getDistance(), 0, sun_and_planets[3].getDistance());
 	glPushMatrix();
 	glTranslatef(sun_and_planets[i].getDistance(), 0, sun_and_planets[i].getDistance());
 	glTranslatef(-sun_and_planets[i].getDistance(), 0, -sun_and_planets[i].getDistance());
-	glRotatef(orbit*sun_and_planets[i].getSpeed(), 0, 1, 0);
+	glRotatef(orbit * sun_and_planets[i].getSpeed(), 0, 1, 0);
 	glTranslatef(sun_and_planets[i].getDistance(), 0, sun_and_planets[i].getDistance());
 	sun_and_planets[i].draw();
 	glPopMatrix();
 	glPopMatrix();
 }
-void orbiting(int value){
+void draw_all()
+{
+	draw_solar();
+	draw_spacecraft();
+}
+void orbiting(int value)
+{
 	orbit += 1;
 	glutPostRedisplay();
 	glutTimerFunc(100, orbiting, 1);
@@ -123,6 +154,9 @@ void frameCounter(int value)
 // Initialization routine.
 void setup(void)
 {
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
+
 	spacecraft = glGenLists(1);
 	glNewList(spacecraft, GL_COMPILE);
 	glPushMatrix();
@@ -131,7 +165,7 @@ void setup(void)
 	glutWireCone(5.0, 10.0, 10, 10);
 	glPopMatrix();
 	glEndList();
-	
+
 	float distance = 0;
 	float radius = 30;
 	float speed = 0;
@@ -139,7 +173,7 @@ void setup(void)
 	unsigned int green = 255;
 	unsigned int blue = 0;
 	Body sun = Body(0, 0, 0, radius, distance, speed, red, green, blue, 0, 0);
-	
+
 	distance = 50;
 	radius = 4;
 	red = 26;
@@ -147,7 +181,7 @@ void setup(void)
 	blue = 26;
 	speed = 8.8;
 	Body mercury = Body(0, 0, 0, radius, distance, speed, red, green, blue, 0, 0);
-	
+
 	distance = 100;
 	radius = 9;
 	red = 230;
@@ -155,7 +189,7 @@ void setup(void)
 	blue = 230;
 	speed = 6.5;
 	Body venus = Body(0, 0, 0, radius, distance, speed, red, green, blue, 0, 0);
-	
+
 	distance = 150;
 	radius = 10;
 	red = 47;
@@ -163,7 +197,7 @@ void setup(void)
 	blue = 105;
 	speed = 5.5;
 	Body earth = Body(0, 0, 0, radius, distance, speed, red, green, blue, 0, 0);
-	
+
 	distance = 200;
 	radius = 5;
 	red = 153;
@@ -171,7 +205,7 @@ void setup(void)
 	blue = 0;
 	speed = 4.5;
 	Body mars = Body(0, 0, 0, radius, distance, speed, red, green, blue, 0, 0);
-	
+
 	distance = 250;
 	radius = 20;
 	red = 176;
@@ -179,7 +213,7 @@ void setup(void)
 	blue = 53;
 	speed = 2.5;
 	Body jupiter = Body(0, 0, 0, radius, distance, speed, red, green, blue, 0, 0);
-	
+
 	distance = 300;
 	radius = 15;
 	red = 176;
@@ -187,7 +221,7 @@ void setup(void)
 	blue = 54;
 	speed = 2;
 	Body saturn = Body(0, 0, 0, radius, distance, speed, red, green, blue, 0, 0);
-	
+
 	distance = 350;
 	radius = 4;
 	red = 13;
@@ -195,7 +229,7 @@ void setup(void)
 	blue = 170;
 	speed = 1.5;
 	Body uranus = Body(0, 0, 0, radius, distance, speed, red, green, blue, 0, 0);
-	
+
 	distance = 400;
 	radius = 3;
 	red = 12;
@@ -203,7 +237,7 @@ void setup(void)
 	blue = 150;
 	speed = 1;
 	Body neptune = Body(0, 0, 0, radius, distance, speed, red, green, blue, 0, 0);
-	
+
 	distance = 25;
 	radius = 5;
 	red = 255;
@@ -211,7 +245,7 @@ void setup(void)
 	blue = 255;
 	speed = 10;
 	Body moon = Body(0, 0, 0, radius, distance, speed, red, green, blue, 0, 0);
-	
+
 	sun_and_planets[0] = sun;
 	sun_and_planets[1] = mercury;
 	sun_and_planets[2] = venus;
@@ -222,10 +256,10 @@ void setup(void)
 	sun_and_planets[7] = uranus;
 	sun_and_planets[8] = neptune;
 	sun_and_planets[9] = moon;
-	
+
 	glEnable(GL_DEPTH_TEST);
 	glClearColor(0.0, 0.0, 0.0, 0.0);
-	
+
 	glutTimerFunc(0, frameCounter, 0);
 	glutTimerFunc(0, orbiting, 0);
 }
@@ -233,13 +267,13 @@ void setup(void)
 // Drawing routine.
 void drawScene(void)
 {
+	GLfloat position[] = {0.0, 0.0, 1.5, 1.0};
 	frameCount++; // Increment number of frames every redraw.
-	
+
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	
 	glViewport(0, 0, width, height); // demo
 	glLoadIdentity();
-	
+
 	gluLookAt(xVal - 10 * sin((M_PI / 180.0) * angle),
 			  0.0,
 			  zVal - 10 * cos((M_PI / 180.0) * angle),
@@ -249,32 +283,16 @@ void drawScene(void)
 			  0.0,
 			  1.0,
 			  0.0);
-	
-	draw_solar();
-	
+	glLightfv(GL_LIGHT0, GL_POSITION, position);
+
+	draw_all();
+
 	glViewport(width / 1.5, 0, width / 3.0, height / 3.0);
-	glLoadIdentity();
-	glPushMatrix();
-	glColor3f(1.0, 0.0, 0.0);
-	glRasterPos3f(-28.0, 25.0, -30.0);
-	glColor3f(1.0, 1.0, 1.0);
-	glLineWidth(2.0);
-	glBegin(GL_LINE_LOOP);
-	glVertex3f(-5.0, -5.0, -5.0);
-	glVertex3f(-5.0, 5.0, -5.0);
-	glVertex3f(5.0, 5.0, -5.0);
-	glVertex3f(5.0, -5.0, -5.0);
-	glEnd();
-	glLineWidth(1.0);
-	
+	draw_box();
+
 	gluLookAt(0.0, 600.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
-	draw_solar();
-	
-	glPushMatrix();
-	glTranslatef(xVal, 0.0, zVal);
-	glRotatef(angle, 0.0, 1.0, 0.0);
-	glCallList(spacecraft);
-	glPopMatrix();
+	glLightfv(GL_LIGHT0, GL_POSITION, position);
+	draw_all();
 	glutSwapBuffers();
 }
 
@@ -295,18 +313,18 @@ void keyInput(unsigned char key, int x, int y)
 {
 	switch (key)
 	{
-		case 27:
-			exit(0);
-			break;
-		default:
-			break;
+	case 27:
+		exit(0);
+		break;
+	default:
+		break;
 	}
 }
 
 void specialKeyInput(int key, int x, int y)
 {
 	float tempxVal = xVal, tempzVal = zVal, tempAngle = angle;
-	
+
 	// Compute next position.
 	if (key == GLUT_KEY_LEFT)
 		tempAngle = angle + 5.0;
@@ -314,21 +332,26 @@ void specialKeyInput(int key, int x, int y)
 		tempAngle = angle - 5.0;
 	if (key == GLUT_KEY_UP)
 	{
-		tempxVal = xVal - speed*sin(angle * M_PI / 180.0);
-		tempzVal = zVal - speed*cos(angle * M_PI / 180.0);
+		tempxVal = xVal - speed * sin(angle * M_PI / 180.0);
+		tempzVal = zVal - speed * cos(angle * M_PI / 180.0);
 	}
 	if (key == GLUT_KEY_DOWN)
 	{
-		tempxVal = xVal + speed*sin(angle * M_PI / 180.0);
-		tempzVal = zVal + speed*cos(angle * M_PI / 180.0);
+		tempxVal = xVal + speed * sin(angle * M_PI / 180.0);
+		tempzVal = zVal + speed * cos(angle * M_PI / 180.0);
 	}
-	
+
 	// Angle correction.
 	if (tempAngle > 360.0)
 		tempAngle -= 360.0;
 	if (tempAngle < 0.0)
 		tempAngle += 360.0;
-	
+
+	// Move spacecraft to next position only if there will not be collision with an asteroid.
+	xVal = tempxVal;
+	zVal = tempzVal;
+	angle = tempAngle;
+
 	glutPostRedisplay();
 }
 
@@ -337,7 +360,7 @@ void printInteraction(void)
 {
 	std::cout << "Interaction:" << std::endl;
 	std::cout << "Press the left/right arrow keys to turn the craft." << std::endl
-	<< "Press the up/down arrow keys to move the craft." << std::endl;
+			  << "Press the up/down arrow keys to move the craft." << std::endl;
 }
 
 // Main routine.
@@ -345,10 +368,10 @@ int main(int argc, char **argv)
 {
 	printInteraction();
 	glutInit(&argc, argv);
-	
+
 	glutInitContextVersion(4, 3);
 	glutInitContextProfile(GLUT_COMPATIBILITY_PROFILE);
-	
+
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
 	glutInitWindowSize(900, 900);
 	glutInitWindowPosition(0, 0);
@@ -357,11 +380,11 @@ int main(int argc, char **argv)
 	glutReshapeFunc(resize);
 	glutKeyboardFunc(keyInput);
 	glutSpecialFunc(specialKeyInput);
-	
+
 	glewExperimental = GL_TRUE;
 	glewInit();
-	
+
 	setup();
-	
+
 	glutMainLoop();
 }
