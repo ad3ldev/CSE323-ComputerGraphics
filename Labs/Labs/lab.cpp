@@ -367,7 +367,7 @@ int main(int argc, char **argv)
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
 	glutInitWindowSize(900, 900);
 	glutInitWindowPosition(0, 0);
-	glutCreateWindow("spaceTravel.cpp");
+	glutCreateWindow("Solar System.cpp");
 	glutDisplayFunc(drawScene);
 	glutReshapeFunc(resize);
 	glutKeyboardFunc(keyInput);
