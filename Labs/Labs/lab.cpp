@@ -11,6 +11,7 @@ static int isCollision = 0;					  // Is there collision between the spacecraft a
 static unsigned int spacecraft;				  // Display lists base index.
 static int frameCount = 0;
 static float speed = 20;
+static float rotate = 0;
 
 // Routine to draw a bitmap character string.
 void writeBitmapString(void *font, char *string)
@@ -88,6 +89,11 @@ void Body::draw()
 Body sun_and_planets[NUMNER_OF_BODIES]; // Global array of asteroids.
 
 // Routine to count the number of frames drawn every second.
+void rotating(int value){
+	rotate += 10;
+	glutPostRedisplay();
+	glutTimerFunc(100, rotating, 1);
+}
 void frameCounter(int value)
 {
 	if (value != 0) // No output the first time frameCounter() is called (from main()).
@@ -113,63 +119,63 @@ void setup(void)
 	unsigned int red = 255;
 	unsigned int green = 255;
 	unsigned int blue = 0;
-	Body sun = Body(distance, 0, 0, radius, distance, red, green, blue, 0, 0);
+	Body sun = Body(0, 0, 0, radius, distance, red, green, blue, 0, 0);
 
 	distance = 50;
 	radius = 4;
 	red = 26;
 	green = 26;
 	blue = 26;
-	Body mercury = Body(distance, 0, 0, radius, distance, red, green, blue, 0, 0);
+	Body mercury = Body(0, 0, 0, radius, distance, red, green, blue, 0, 0);
 
 	distance = 100;
 	radius = 9;
 	red = 230;
 	green = 230;
 	blue = 230;
-	Body venus = Body(distance, 0, 0, radius, distance, red, green, blue, 0, 0);
+	Body venus = Body(0, 0, 0, radius, distance, red, green, blue, 0, 0);
 
 	distance = 150;
 	radius = 10;
 	red = 47;
 	green = 106;
 	blue = 105;
-	Body earth = Body(distance, 0, 0, radius, distance, red, green, blue, 0, 0);
+	Body earth = Body(0, 0, 0, radius, distance, red, green, blue, 0, 0);
 
 	distance = 200;
 	radius = 5;
 	red = 153;
 	green = 61;
 	blue = 0;
-	Body mars = Body(distance, 0, 0, radius, distance, red, green, blue, 0, 0);
+	Body mars = Body(0, 0, 0, radius, distance, red, green, blue, 0, 0);
 
 	distance = 250;
 	radius = 20;
 	red = 176;
 	green = 127;
 	blue = 53;
-	Body jupiter = Body(distance, 0, 0, radius, distance, red, green, blue, 0, 0);
+	Body jupiter = Body(0, 0, 0, radius, distance, red, green, blue, 0, 0);
 
 	distance = 300;
 	radius = 15;
 	red = 176;
 	green = 143;
 	blue = 54;
-	Body saturn = Body(distance, 0, 0, radius, distance, red, green, blue, 0, 0);
+	Body saturn = Body(0, 0, 0, radius, distance, red, green, blue, 0, 0);
 
 	distance = 350;
 	radius = 4;
 	red = 13;
 	green = 128;
 	blue = 170;
-	Body uranus = Body(distance, 0, 0, radius, distance, red, green, blue, 0, 0);
+	Body uranus = Body(0, 0, 0, radius, distance, red, green, blue, 0, 0);
 
 	distance = 400;
 	radius = 3;
 	red = 12;
 	green = 104;
 	blue = 150;
-	Body neptune = Body(distance, 0, 0, radius, distance, red, green, blue, 0, 0);
+	Body neptune = Body(0, 0, 0, radius, distance, red, green, blue, 0, 0);
 
 	sun_and_planets[0] = sun;
 	sun_and_planets[1] = mercury;
@@ -184,7 +190,8 @@ void setup(void)
 	glEnable(GL_DEPTH_TEST);
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 
-	glutTimerFunc(0, frameCounter, 0); // Initial call of frameCounter().
+	glutTimerFunc(0, frameCounter, 0);
+	glutTimerFunc(0, rotating, 0);// Initial call of frameCounter().
 }
 
 // Function to check if two spheres centered at (x1,y1,z1) and (x2,y2,z2) with
@@ -210,7 +217,7 @@ int asteroidCraftCollision(float x, float z, float a)
 										 z - 5 * cos((M_PI / 180.0) * a), 7.072,
 										 sun_and_planets[i].getCenterX(), sun_and_planets[i].getCenterY(),
 										 sun_and_planets[i].getCenterZ(), sun_and_planets[i].getRadius()))
-				return 1;
+				return 0;
 	}
 
 	return 0;
@@ -249,8 +256,16 @@ void drawScene(void)
 			  0.0);
 
 	// Draw all the asteroids in arrayAsteroids.
-	for (i = 0; i < NUMNER_OF_BODIES; i++)
+	sun_and_planets[0].draw();
+	for (i = 1; i < NUMNER_OF_BODIES; i++){
+		glPushMatrix();
+		glTranslatef(sun_and_planets[i].getDistance(), 0, sun_and_planets[i].getDistance());
+		glTranslatef(-sun_and_planets[i].getDistance(), 0, -sun_and_planets[i].getDistance());
+		glRotatef(rotate, 0, 1, 0);
+		glTranslatef(sun_and_planets[i].getDistance(), 0, sun_and_planets[i].getDistance());
 		sun_and_planets[i].draw();
+		glPopMatrix();
+	}
 
 	// End left viewport.
 
@@ -278,10 +293,18 @@ void drawScene(void)
 	glLineWidth(1.0);
 
 	// Locate the camera at the tip of the cone and pointing in the direction of the cone.
-	gluLookAt(0.0, 500.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+	gluLookAt(0.0, 600.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 	// Draw all the asteroids in arrayAsteroids.
-	for (i = 0; i < NUMNER_OF_BODIES; i++)
+	sun_and_planets[0].draw();
+	for (i = 1; i < NUMNER_OF_BODIES; i++){
+		glPushMatrix();
+		glTranslatef(sun_and_planets[i].getDistance(), 0, sun_and_planets[i].getDistance());
+		glTranslatef(-sun_and_planets[i].getDistance(), 0, -sun_and_planets[i].getDistance());
+		glRotatef(rotate, 0, 1, 0);
+		glTranslatef(sun_and_planets[i].getDistance(), 0, sun_and_planets[i].getDistance());
 		sun_and_planets[i].draw();
+		glPopMatrix();
+	}
 
 	// Draw spacecraft.
 	glPushMatrix();
@@ -290,7 +313,6 @@ void drawScene(void)
 	glCallList(spacecraft);
 	glPopMatrix();
 	// End right viewport.
-
 	glutSwapBuffers();
 }
 
