@@ -30,7 +30,7 @@ float to_rad(float angle)
 // Drawing routine.
 void drawScene(void)
 {
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glColor3f(1.0, 1.0, 1.0);
 
     if (wireframe == 0)
@@ -134,6 +134,7 @@ void drawScene(void)
 // Initialization routine.
 void setup(void)
 {
+    glEnable(GL_DEPTH_TEST);
     cylinders = glGenLists(1);
     // Begin create a display list.
     glNewList(cylinders, GL_COMPILE);

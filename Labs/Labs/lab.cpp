@@ -154,8 +154,8 @@ void frameCounter(int value)
 // Initialization routine.
 void setup(void)
 {
-//	glEnable(GL_LIGHTING);
-//	glEnable(GL_LIGHT0);
+	//	glEnable(GL_LIGHTING);
+	//	glEnable(GL_LIGHT0);
 
 	float distance = 0;
 	float radius = 30;
@@ -284,7 +284,7 @@ void drawScene(void)
 	gluLookAt(0.0, 600.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 	glLightfv(GL_LIGHT0, GL_POSITION, position);
 	draw_all();
-	
+
 	glutSwapBuffers();
 }
 
