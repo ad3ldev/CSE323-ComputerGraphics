@@ -140,7 +140,7 @@ void setup(void)
 	red = 26;
 	green = 26;
 	blue = 26;
-	speed = 8;
+	speed = 8.8;
 	Body mercury = Body(0, 0, 0, radius, distance, speed, red, green, blue, 0, 0);
 	
 	distance = 100;
@@ -148,7 +148,7 @@ void setup(void)
 	red = 230;
 	green = 230;
 	blue = 230;
-	speed = 7;
+	speed = 6.5;
 	Body venus = Body(0, 0, 0, radius, distance, speed, red, green, blue, 0, 0);
 
 	distance = 150;
@@ -156,7 +156,7 @@ void setup(void)
 	red = 47;
 	green = 106;
 	blue = 105;
-	speed = 6;
+	speed = 5.5;
 	Body earth = Body(0, 0, 0, radius, distance, speed, red, green, blue, 0, 0);
 
 	distance = 200;
@@ -164,7 +164,7 @@ void setup(void)
 	red = 153;
 	green = 61;
 	blue = 0;
-	speed = 5;
+	speed = 4.5;
 	Body mars = Body(0, 0, 0, radius, distance, speed, red, green, blue, 0, 0);
 
 	distance = 250;
@@ -172,7 +172,7 @@ void setup(void)
 	red = 176;
 	green = 127;
 	blue = 53;
-	speed = 4;
+	speed = 2.5;
 	Body jupiter = Body(0, 0, 0, radius, distance, speed, red, green, blue, 0, 0);
 
 	distance = 300;
@@ -180,7 +180,7 @@ void setup(void)
 	red = 176;
 	green = 143;
 	blue = 54;
-	speed = 3;
+	speed = 2;
 	Body saturn = Body(0, 0, 0, radius, distance, speed, red, green, blue, 0, 0);
 
 	distance = 350;
@@ -188,7 +188,7 @@ void setup(void)
 	red = 13;
 	green = 128;
 	blue = 170;
-	speed = 2;
+	speed = 1.5;
 	Body uranus = Body(0, 0, 0, radius, distance, speed, red, green, blue, 0, 0);
 
 	distance = 400;
