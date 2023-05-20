@@ -19,7 +19,7 @@ static float xVal = -500, zVal = 0;
 static int frameCount = 0;
 static float speed = 20;
 static float orbit = rand() % 360;
-static float rotate = 0;
+static float rotate_speed = 0;
 
 GLuint loadTexture(const char * filename) {
 	int width, height, bpp = 0;
@@ -36,7 +36,7 @@ class Body
 {
 public:
 	Body();
-	Body(float r, float d, float s, GLuint texture);
+	Body(float r, float d, float s, float rotate, GLuint texture);
 	float getRadius() { return radius; }
 	float getDistance() { return distance; }
 	float getSpeed() { return speed; }
@@ -54,14 +54,16 @@ Body::Body()
 	radius = 0;
 	distance = 0;
 	texture = 0;
+	rotation = 0;
 }
 
-Body::Body(float r, float d, float s, GLuint textureImage)
+Body::Body(float r, float d, float s, float rotate, GLuint textureImage)
 {
 	radius = r;
 	speed = s;
 	distance = d;
 	texture = textureImage;
+	rotation = rotate;
 }
 
 void Body::draw()
@@ -75,7 +77,7 @@ void Body::draw()
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_NEAREST);
 		glRotatef(90, 1, 0, 0);
-		glRotatef(rotate*10, 0, 1, 1);
+		glRotatef(rotate_speed*rotation, 1, 1, 1);
 		gluQuadricTexture(body,true);
 		gluSphere(body, radius, 20, 20);
 		glPopMatrix();
@@ -143,7 +145,7 @@ void draw_all()
 }
 void orbiting(int value)
 {
-	rotate += 1;
+	rotate_speed += 1;
 	orbit += 1;
 	glutPostRedisplay();
 	glutTimerFunc(100, orbiting, 1);
@@ -168,62 +170,63 @@ void setup(void)
 	float distance = 0;
 	float radius = 30;
 	float speed = 0;
+	float rotation = 10;
 	GLuint texture = loadTexture("/Users/adele/Desktop/College/Year3/Term2/CSE323-ComputerGraphics/Labs/Labs/textures/sun.jpg");
-	Body sun = Body(radius, distance, speed,texture);
+	Body sun = Body(radius, distance, speed, rotation,texture);
 	
 	distance = 50;
 	radius = 4;
 	speed = 8.8;
 	texture = loadTexture("/Users/adele/Desktop/College/Year3/Term2/CSE323-ComputerGraphics/Labs/Labs/textures/mercury.jpg");
-	Body mercury = Body(radius, distance, speed,texture);
+	Body mercury = Body(radius, distance, speed, rotation,texture);
 	
 	distance = 100;
 	radius = 9;
 	speed = 6.5;
 	texture = loadTexture("/Users/adele/Desktop/College/Year3/Term2/CSE323-ComputerGraphics/Labs/Labs/textures/venus.jpg");
-	Body venus = Body(radius, distance, speed,texture);
+	Body venus = Body(radius, distance, speed, rotation,texture);
 	
 	distance = 150;
 	radius = 10;
 	speed = 5.5;
 	texture = loadTexture("/Users/adele/Desktop/College/Year3/Term2/CSE323-ComputerGraphics/Labs/Labs/textures/earth.jpg");
-	Body earth = Body(radius, distance, speed,texture);
+	Body earth = Body(radius, distance, speed, rotation,texture);
 	
 	distance = 200;
 	radius = 5;
 	speed = 4.5;
 	texture = loadTexture("/Users/adele/Desktop/College/Year3/Term2/CSE323-ComputerGraphics/Labs/Labs/textures/mars.jpg");
-	Body mars = Body(radius, distance, speed,texture);
+	Body mars = Body(radius, distance, speed, rotation,texture);
 	
 	distance = 250;
 	radius = 20;
 	speed = 2.5;
 	texture = loadTexture("/Users/adele/Desktop/College/Year3/Term2/CSE323-ComputerGraphics/Labs/Labs/textures/jupiter.jpg");
-	Body jupiter = Body(radius, distance, speed,texture);
+	Body jupiter = Body(radius, distance, speed, rotation,texture);
 	
 	distance = 300;
 	radius = 15;
 	speed = 2;
 	texture = loadTexture("/Users/adele/Desktop/College/Year3/Term2/CSE323-ComputerGraphics/Labs/Labs/textures/saturn.jpg");
-	Body saturn = Body(radius, distance, speed,texture);
+	Body saturn =Body(radius, distance, speed, rotation,texture);
 	
 	distance = 350;
 	radius = 4;
 	speed = 1.5;
 	texture = loadTexture("/Users/adele/Desktop/College/Year3/Term2/CSE323-ComputerGraphics/Labs/Labs/textures/uranus.jpg");
-	Body uranus = Body(radius, distance, speed,texture);
+	Body uranus = Body(radius, distance, speed, rotation,texture);
 	
 	distance = 400;
 	radius = 3;
 	speed = 1;
 	texture = loadTexture("/Users/adele/Desktop/College/Year3/Term2/CSE323-ComputerGraphics/Labs/Labs/textures/neptune.jpg");
-	Body neptune = Body(radius, distance, speed,texture);
+	Body neptune = Body(radius, distance, speed, rotation,texture);
 	
 	distance = 25;
 	radius = 5;
 	speed = 10;
 	texture = loadTexture("/Users/adele/Desktop/College/Year3/Term2/CSE323-ComputerGraphics/Labs/Labs/textures/moon.jpg");
-	Body moon = Body(radius, distance, speed,texture);
+	Body moon = Body(radius, distance, speed, rotation,texture);
 	
 	sun_and_planets[0] = sun;
 	sun_and_planets[1] = mercury;
