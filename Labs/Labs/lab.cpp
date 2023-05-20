@@ -21,6 +21,19 @@ static float speed = 20;
 static float orbit = rand() % 360;
 static float rotate_speed = 0;
 
+const char * images[] = {
+	"/Users/adele/Desktop/College/Year3/Term2/CSE323-ComputerGraphics/Labs/Labs/textures/sun.jpg",
+	"/Users/adele/Desktop/College/Year3/Term2/CSE323-ComputerGraphics/Labs/Labs/textures/mercury.jpg",
+	"/Users/adele/Desktop/College/Year3/Term2/CSE323-ComputerGraphics/Labs/Labs/textures/venus.jpg",
+	"/Users/adele/Desktop/College/Year3/Term2/CSE323-ComputerGraphics/Labs/Labs/textures/earth.jpg",
+	"/Users/adele/Desktop/College/Year3/Term2/CSE323-ComputerGraphics/Labs/Labs/textures/mars.jpg",
+	"/Users/adele/Desktop/College/Year3/Term2/CSE323-ComputerGraphics/Labs/Labs/textures/jupiter.jpg",
+	"/Users/adele/Desktop/College/Year3/Term2/CSE323-ComputerGraphics/Labs/Labs/textures/saturn.jpg",
+	"/Users/adele/Desktop/College/Year3/Term2/CSE323-ComputerGraphics/Labs/Labs/textures/uranus.jpg",
+	"/Users/adele/Desktop/College/Year3/Term2/CSE323-ComputerGraphics/Labs/Labs/textures/neptune.jpg",
+	"/Users/adele/Desktop/College/Year3/Term2/CSE323-ComputerGraphics/Labs/Labs/textures/moon.jpg"
+};
+
 GLuint loadTexture(const char * filename) {
 	int width, height, bpp = 0;
 	unsigned char * data = stbi_load(filename, &width, &height, &bpp, 0);
@@ -171,61 +184,61 @@ void setup(void)
 	float radius = 30;
 	float speed = 0;
 	float rotation = 10;
-	GLuint texture = loadTexture("/Users/adele/Desktop/College/Year3/Term2/CSE323-ComputerGraphics/Labs/Labs/textures/sun.jpg");
+	GLuint texture = loadTexture(images[0]);
 	Body sun = Body(radius, distance, speed, rotation,texture);
 	
 	distance = 50;
 	radius = 4;
 	speed = 8.8;
-	texture = loadTexture("/Users/adele/Desktop/College/Year3/Term2/CSE323-ComputerGraphics/Labs/Labs/textures/mercury.jpg");
+	texture = loadTexture(images[1]);
 	Body mercury = Body(radius, distance, speed, rotation,texture);
 	
 	distance = 100;
 	radius = 9;
 	speed = 6.5;
-	texture = loadTexture("/Users/adele/Desktop/College/Year3/Term2/CSE323-ComputerGraphics/Labs/Labs/textures/venus.jpg");
+	texture = loadTexture(images[2]);
 	Body venus = Body(radius, distance, speed, rotation,texture);
 	
 	distance = 150;
 	radius = 10;
 	speed = 5.5;
-	texture = loadTexture("/Users/adele/Desktop/College/Year3/Term2/CSE323-ComputerGraphics/Labs/Labs/textures/earth.jpg");
+	texture = loadTexture(images[3]);
 	Body earth = Body(radius, distance, speed, rotation,texture);
 	
 	distance = 200;
 	radius = 5;
 	speed = 4.5;
-	texture = loadTexture("/Users/adele/Desktop/College/Year3/Term2/CSE323-ComputerGraphics/Labs/Labs/textures/mars.jpg");
+	texture = loadTexture(images[4]);
 	Body mars = Body(radius, distance, speed, rotation,texture);
 	
 	distance = 250;
 	radius = 20;
 	speed = 2.5;
-	texture = loadTexture("/Users/adele/Desktop/College/Year3/Term2/CSE323-ComputerGraphics/Labs/Labs/textures/jupiter.jpg");
+	texture = loadTexture(images[5]);
 	Body jupiter = Body(radius, distance, speed, rotation,texture);
 	
 	distance = 300;
 	radius = 15;
 	speed = 2;
-	texture = loadTexture("/Users/adele/Desktop/College/Year3/Term2/CSE323-ComputerGraphics/Labs/Labs/textures/saturn.jpg");
+	texture = loadTexture(images[6]);
 	Body saturn =Body(radius, distance, speed, rotation,texture);
 	
 	distance = 350;
 	radius = 4;
 	speed = 1.5;
-	texture = loadTexture("/Users/adele/Desktop/College/Year3/Term2/CSE323-ComputerGraphics/Labs/Labs/textures/uranus.jpg");
+	texture = loadTexture(images[7]);
 	Body uranus = Body(radius, distance, speed, rotation,texture);
 	
 	distance = 400;
 	radius = 3;
 	speed = 1;
-	texture = loadTexture("/Users/adele/Desktop/College/Year3/Term2/CSE323-ComputerGraphics/Labs/Labs/textures/neptune.jpg");
+	texture = loadTexture(images[8]);
 	Body neptune = Body(radius, distance, speed, rotation,texture);
 	
 	distance = 25;
 	radius = 5;
 	speed = 10;
-	texture = loadTexture("/Users/adele/Desktop/College/Year3/Term2/CSE323-ComputerGraphics/Labs/Labs/textures/moon.jpg");
+	texture = loadTexture(images[9]);
 	Body moon = Body(radius, distance, speed, rotation,texture);
 	
 	sun_and_planets[0] = sun;
