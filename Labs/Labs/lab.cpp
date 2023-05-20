@@ -3,10 +3,15 @@
 #include <cstdlib>
 #include <cmath>
 #include <iostream>
+#include <filesystem>
 
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 #define NUMNER_OF_BODIES 10
+
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
 
 static int width, height;
 static float angle = 0;
@@ -14,56 +19,49 @@ static float xVal = -500, zVal = 0;
 static int frameCount = 0;
 static float speed = 20;
 static float orbit = rand() % 360;
+static float rotate = 0;
+
+GLuint loadTexture(const char * filename) {
+	int width, height, bpp = 0;
+	unsigned char * data = stbi_load(filename, &width, &height, &bpp, 0);
+	GLuint textureId;
+	glGenTextures(1, &textureId); //Make room for our texture
+	glBindTexture(GL_TEXTURE_2D, textureId);
+	glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,width, height,0,GL_RGB,GL_UNSIGNED_BYTE,data);
+	stbi_image_free(data);
+	return textureId;
+}
 
 class Body
 {
 public:
 	Body();
-	Body(float x, float y, float z, float r, float d, float s, unsigned char colorR,
-		 unsigned char colorG, unsigned char colorB, unsigned int texture, unsigned int map);
-	float getCenterX() { return centerX; }
-	float getCenterY() { return centerY; }
-	float getCenterZ() { return centerZ; }
+	Body(float r, float d, float s, GLuint texture);
 	float getRadius() { return radius; }
 	float getDistance() { return distance; }
 	float getSpeed() { return speed; }
 	unsigned int getTexture() { return texture; }
-	unsigned int getMap() { return map; }
 	void draw();
-
+	
 private:
-	float centerX, centerY, centerZ, radius, distance, speed;
-	unsigned char color[3];
-	//	TODO: change this so it actual texture and map
-	unsigned int texture, map;
+	GLUquadric *body = gluNewQuadric();
+	float radius, distance, speed, rotation;
+	GLuint texture;
 };
 
 Body::Body()
 {
-	centerX = 0;
-	centerY = 0;
-	centerZ = 0;
 	radius = 0;
 	distance = 0;
-	color[0] = 0;
-	color[1] = 0;
-	color[2] = 0;
-
 	texture = 0;
-	map = 0;
 }
 
-Body::Body(float x, float y, float z, float r, float d, float s, unsigned char colorR, unsigned char colorG, unsigned char colorB, unsigned int texture, unsigned map)
+Body::Body(float r, float d, float s, GLuint textureImage)
 {
-	centerX = x;
-	centerY = y;
-	centerZ = z;
 	radius = r;
 	speed = s;
 	distance = d;
-	color[0] = colorR;
-	color[1] = colorG;
-	color[2] = colorB;
+	texture = textureImage;
 }
 
 void Body::draw()
@@ -71,9 +69,15 @@ void Body::draw()
 	if (radius > 0.0) // If asteroid exists.
 	{
 		glPushMatrix();
-		glTranslatef(centerX, centerY, centerZ);
-		glColor3ubv(color);
-		glutWireSphere(radius, (int)radius * 6, (int)radius * 6);
+		glBindTexture(GL_TEXTURE_2D, texture);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_NEAREST);
+		glRotatef(90, 1, 0, 0);
+		glRotatef(rotate*10, 0, 1, 1);
+		gluQuadricTexture(body,true);
+		gluSphere(body, radius, 20, 20);
 		glPopMatrix();
 	}
 }
@@ -139,9 +143,12 @@ void draw_all()
 }
 void orbiting(int value)
 {
+	rotate += 1;
 	orbit += 1;
 	glutPostRedisplay();
 	glutTimerFunc(100, orbiting, 1);
+}
+void rotating(int value){
 }
 void frameCounter(int value)
 {
@@ -156,87 +163,68 @@ void setup(void)
 {
 	//	glEnable(GL_LIGHTING);
 	//	glEnable(GL_LIGHT0);
-
+	glEnable(GL_TEXTURE_2D);
+	
 	float distance = 0;
 	float radius = 30;
 	float speed = 0;
-	unsigned int red = 255;
-	unsigned int green = 255;
-	unsigned int blue = 0;
-	Body sun = Body(0, 0, 0, radius, distance, speed, red, green, blue, 0, 0);
-
+	GLuint texture = loadTexture("/Users/adele/Desktop/College/Year3/Term2/CSE323-ComputerGraphics/Labs/Labs/textures/sun.jpg");
+	Body sun = Body(radius, distance, speed,texture);
+	
 	distance = 50;
 	radius = 4;
-	red = 26;
-	green = 26;
-	blue = 26;
 	speed = 8.8;
-	Body mercury = Body(0, 0, 0, radius, distance, speed, red, green, blue, 0, 0);
-
+	texture = loadTexture("/Users/adele/Desktop/College/Year3/Term2/CSE323-ComputerGraphics/Labs/Labs/textures/mercury.jpg");
+	Body mercury = Body(radius, distance, speed,texture);
+	
 	distance = 100;
 	radius = 9;
-	red = 230;
-	green = 230;
-	blue = 230;
 	speed = 6.5;
-	Body venus = Body(0, 0, 0, radius, distance, speed, red, green, blue, 0, 0);
-
+	texture = loadTexture("/Users/adele/Desktop/College/Year3/Term2/CSE323-ComputerGraphics/Labs/Labs/textures/venus.jpg");
+	Body venus = Body(radius, distance, speed,texture);
+	
 	distance = 150;
 	radius = 10;
-	red = 47;
-	green = 106;
-	blue = 105;
 	speed = 5.5;
-	Body earth = Body(0, 0, 0, radius, distance, speed, red, green, blue, 0, 0);
-
+	texture = loadTexture("/Users/adele/Desktop/College/Year3/Term2/CSE323-ComputerGraphics/Labs/Labs/textures/earth.jpg");
+	Body earth = Body(radius, distance, speed,texture);
+	
 	distance = 200;
 	radius = 5;
-	red = 153;
-	green = 61;
-	blue = 0;
 	speed = 4.5;
-	Body mars = Body(0, 0, 0, radius, distance, speed, red, green, blue, 0, 0);
-
+	texture = loadTexture("/Users/adele/Desktop/College/Year3/Term2/CSE323-ComputerGraphics/Labs/Labs/textures/mars.jpg");
+	Body mars = Body(radius, distance, speed,texture);
+	
 	distance = 250;
 	radius = 20;
-	red = 176;
-	green = 127;
-	blue = 53;
 	speed = 2.5;
-	Body jupiter = Body(0, 0, 0, radius, distance, speed, red, green, blue, 0, 0);
-
+	texture = loadTexture("/Users/adele/Desktop/College/Year3/Term2/CSE323-ComputerGraphics/Labs/Labs/textures/jupiter.jpg");
+	Body jupiter = Body(radius, distance, speed,texture);
+	
 	distance = 300;
 	radius = 15;
-	red = 176;
-	green = 143;
-	blue = 54;
 	speed = 2;
-	Body saturn = Body(0, 0, 0, radius, distance, speed, red, green, blue, 0, 0);
-
+	texture = loadTexture("/Users/adele/Desktop/College/Year3/Term2/CSE323-ComputerGraphics/Labs/Labs/textures/saturn.jpg");
+	Body saturn = Body(radius, distance, speed,texture);
+	
 	distance = 350;
 	radius = 4;
-	red = 13;
-	green = 128;
-	blue = 170;
 	speed = 1.5;
-	Body uranus = Body(0, 0, 0, radius, distance, speed, red, green, blue, 0, 0);
-
+	texture = loadTexture("/Users/adele/Desktop/College/Year3/Term2/CSE323-ComputerGraphics/Labs/Labs/textures/uranus.jpg");
+	Body uranus = Body(radius, distance, speed,texture);
+	
 	distance = 400;
 	radius = 3;
-	red = 12;
-	green = 104;
-	blue = 150;
 	speed = 1;
-	Body neptune = Body(0, 0, 0, radius, distance, speed, red, green, blue, 0, 0);
-
+	texture = loadTexture("/Users/adele/Desktop/College/Year3/Term2/CSE323-ComputerGraphics/Labs/Labs/textures/neptune.jpg");
+	Body neptune = Body(radius, distance, speed,texture);
+	
 	distance = 25;
 	radius = 5;
-	red = 255;
-	green = 255;
-	blue = 255;
 	speed = 10;
-	Body moon = Body(0, 0, 0, radius, distance, speed, red, green, blue, 0, 0);
-
+	texture = loadTexture("/Users/adele/Desktop/College/Year3/Term2/CSE323-ComputerGraphics/Labs/Labs/textures/moon.jpg");
+	Body moon = Body(radius, distance, speed,texture);
+	
 	sun_and_planets[0] = sun;
 	sun_and_planets[1] = mercury;
 	sun_and_planets[2] = venus;
@@ -247,10 +235,10 @@ void setup(void)
 	sun_and_planets[7] = uranus;
 	sun_and_planets[8] = neptune;
 	sun_and_planets[9] = moon;
-
+	
 	glEnable(GL_DEPTH_TEST);
 	glClearColor(0.0, 0.0, 0.0, 0.0);
-
+	
 	glutTimerFunc(0, frameCounter, 0);
 	glutTimerFunc(0, orbiting, 0);
 }
@@ -260,11 +248,11 @@ void drawScene(void)
 {
 	GLfloat position[] = {0.0, 0.0, 0, 1.0};
 	frameCount++; // Increment number of frames every redraw.
-
+	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glViewport(0, 0, width, height); // demo
 	glLoadIdentity();
-
+	
 	gluLookAt(xVal - 10 * sin((M_PI / 180.0) * angle),
 			  0.0,
 			  zVal - 10 * cos((M_PI / 180.0) * angle),
@@ -276,15 +264,15 @@ void drawScene(void)
 			  0.0);
 	glLightfv(GL_LIGHT0, GL_POSITION, position);
 	draw_solar();
-
+	
 	glViewport(width / 1.5, 0, width / 3.0, height / 3.0);
 	glLoadIdentity();
 	draw_box();
-
+	
 	gluLookAt(0.0, 600.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 	glLightfv(GL_LIGHT0, GL_POSITION, position);
 	draw_all();
-
+	
 	glutSwapBuffers();
 }
 
@@ -305,18 +293,18 @@ void keyInput(unsigned char key, int x, int y)
 {
 	switch (key)
 	{
-	case 27:
-		exit(0);
-		break;
-	default:
-		break;
+		case 27:
+			exit(0);
+			break;
+		default:
+			break;
 	}
 }
 
 void specialKeyInput(int key, int x, int y)
 {
 	float tempxVal = xVal, tempzVal = zVal, tempAngle = angle;
-
+	
 	// Compute next position.
 	if (key == GLUT_KEY_LEFT)
 		tempAngle = angle + 5.0;
@@ -332,18 +320,18 @@ void specialKeyInput(int key, int x, int y)
 		tempxVal = xVal + speed * sin(angle * M_PI / 180.0);
 		tempzVal = zVal + speed * cos(angle * M_PI / 180.0);
 	}
-
+	
 	// Angle correction.
 	if (tempAngle > 360.0)
 		tempAngle -= 360.0;
 	if (tempAngle < 0.0)
 		tempAngle += 360.0;
-
+	
 	// Move spacecraft to next position only if there will not be collision with an asteroid.
 	xVal = tempxVal;
 	zVal = tempzVal;
 	angle = tempAngle;
-
+	
 	glutPostRedisplay();
 }
 
@@ -352,18 +340,19 @@ void printInteraction(void)
 {
 	std::cout << "Interaction:" << std::endl;
 	std::cout << "Press the left/right arrow keys to turn the craft." << std::endl
-			  << "Press the up/down arrow keys to move the craft." << std::endl;
+	<< "Press the up/down arrow keys to move the craft." << std::endl;
 }
 
 // Main routine.
 int main(int argc, char **argv)
 {
+	
 	printInteraction();
 	glutInit(&argc, argv);
-
+	
 	glutInitContextVersion(4, 3);
 	glutInitContextProfile(GLUT_COMPATIBILITY_PROFILE);
-
+	
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
 	glutInitWindowSize(900, 900);
 	glutInitWindowPosition(0, 0);
@@ -372,11 +361,10 @@ int main(int argc, char **argv)
 	glutReshapeFunc(resize);
 	glutKeyboardFunc(keyInput);
 	glutSpecialFunc(specialKeyInput);
-
 	glewExperimental = GL_TRUE;
 	glewInit();
-
+	
 	setup();
-
+	
 	glutMainLoop();
 }
