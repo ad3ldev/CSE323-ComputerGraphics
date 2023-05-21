@@ -22,16 +22,16 @@ static float orbit = rand() % 360;
 static float rotate_speed = 0;
 
 const char * images[] = {
-	"/Users/adele/Desktop/College/Year3/Term2/CSE323-ComputerGraphics/Labs/Labs/textures/sun.jpg",
-	"/Users/adele/Desktop/College/Year3/Term2/CSE323-ComputerGraphics/Labs/Labs/textures/mercury.jpg",
-	"/Users/adele/Desktop/College/Year3/Term2/CSE323-ComputerGraphics/Labs/Labs/textures/venus.jpg",
-	"/Users/adele/Desktop/College/Year3/Term2/CSE323-ComputerGraphics/Labs/Labs/textures/earth.jpg",
-	"/Users/adele/Desktop/College/Year3/Term2/CSE323-ComputerGraphics/Labs/Labs/textures/mars.jpg",
-	"/Users/adele/Desktop/College/Year3/Term2/CSE323-ComputerGraphics/Labs/Labs/textures/jupiter.jpg",
-	"/Users/adele/Desktop/College/Year3/Term2/CSE323-ComputerGraphics/Labs/Labs/textures/saturn.jpg",
-	"/Users/adele/Desktop/College/Year3/Term2/CSE323-ComputerGraphics/Labs/Labs/textures/uranus.jpg",
-	"/Users/adele/Desktop/College/Year3/Term2/CSE323-ComputerGraphics/Labs/Labs/textures/neptune.jpg",
-	"/Users/adele/Desktop/College/Year3/Term2/CSE323-ComputerGraphics/Labs/Labs/textures/moon.jpg"
+	"textures/sun.jpg",
+	"textures/mercury.jpg",
+	"textures/venus.jpg",
+	"textures/earth.jpg",
+	"textures/mars.jpg",
+	"textures/jupiter.jpg",
+	"textures/saturn.jpg",
+	"textures/uranus.jpg",
+	"Labs/textures/neptune.jpg",
+	"textures/moon.jpg"
 };
 
 GLuint loadTexture(const char * filename) {
@@ -49,7 +49,7 @@ class Body
 {
 public:
 	Body();
-	Body(float r, float d, float s, float rotate, GLuint texture, float mat_em[4]);
+	Body(float r, float d, float s, float rotate, GLuint texture, float mat_em[4], float mat_am[4] ,float mat_sh[1]);
 	float getRadius() { return radius; }
 	float getDistance() { return distance; }
 	float getSpeed() { return speed; }
@@ -61,6 +61,8 @@ private:
 	float radius, distance, speed, rotation;
 	GLuint texture;
 	float mat_emission [4];
+	float mat_ambient [4];
+	float mat_shine [1];
 };
 
 Body::Body()
@@ -71,7 +73,7 @@ Body::Body()
 	rotation = 0;
 }
 
-Body::Body(float r, float d, float s, float rotate, GLuint textureImage, float mat_em[4])
+Body::Body(float r, float d, float s, float rotate, GLuint textureImage, float mat_em[4], float mat_am[4], float mat_sh[1])
 {
 	radius = r;
 	speed = s;
@@ -80,12 +82,14 @@ Body::Body(float r, float d, float s, float rotate, GLuint textureImage, float m
 	rotation = rotate;
 	for (int i = 0; i < 4; i++){
 		mat_emission[i] = mat_em[i];
+		mat_ambient[i] = mat_am[i];
 	}
+	mat_shine[0] = mat_sh[0];
 }
 
 void Body::draw()
 {
-	if (radius > 0.0) // If asteroid exists.
+	if (radius > 0.0)
 	{
 		glPushMatrix();
 		glBindTexture(GL_TEXTURE_2D, texture);
@@ -93,6 +97,8 @@ void Body::draw()
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_NEAREST);
+		glMaterialfv(GL_FRONT, GL_SHININESS, mat_shine);
+		glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
 		glMaterialfv(GL_FRONT, GL_EMISSION, mat_emission);
 		glRotatef(90, 1, 0, 0);
 		glRotatef(rotate_speed*rotation, 1, 1, 1);
@@ -181,70 +187,78 @@ void frameCounter(int value)
 
 void init_bodys(){
 	float distance = 0;
-	float radius = 30;
+	float radius = 50;
 	float speed = 0;
 	float rotation = 10;
 	float mat_emission[] = {1,1,1,1};
+	float mat_ambient[] = {0,0,0,0};
+	float mat_shine[] = {0};
 	GLuint texture = loadTexture(images[0]);
-	Body sun = Body(radius, distance, speed, rotation,texture, mat_emission);
+	Body sun = Body(radius, distance, speed, rotation,texture, mat_emission, mat_ambient, mat_shine);
 	
-	distance = 50;
-	radius = 4;
-	speed = 8.8;
-	texture = loadTexture(images[1]);
 	mat_emission[0] = 0;
 	mat_emission[1] = 0;
 	mat_emission[2] = 0;
 	mat_emission[3] = 0;
-	Body mercury = Body(radius, distance, speed, rotation,texture, mat_emission);
+	mat_ambient[0] = 1;
+	mat_ambient[1] = 1;
+	mat_ambient[2] = 1;
+	mat_ambient[3] = 1;
+	
+	distance = 60;
+	radius = 5;
+	speed = 8.8;
+	texture = loadTexture(images[1]);
+	Body mercury = Body(radius, distance, speed, rotation,texture, mat_emission, mat_ambient, mat_shine);
 	
 	distance = 100;
-	radius = 9;
+	radius = 12;
 	speed = 6.5;
 	texture = loadTexture(images[2]);
-	Body venus = Body(radius, distance, speed, rotation,texture, mat_emission);
+	Body venus = Body(radius, distance, speed, rotation,texture, mat_emission, mat_ambient, mat_shine);
 	
 	distance = 150;
-	radius = 10;
+	radius = 13;
 	speed = 5.5;
 	texture = loadTexture(images[3]);
-	Body earth = Body(radius, distance, speed, rotation,texture, mat_emission);
+	Body earth = Body(radius, distance, speed, rotation,texture, mat_emission, mat_ambient, mat_shine);
 	
 	distance = 200;
-	radius = 5;
+	radius = 7;
 	speed = 4.5;
 	texture = loadTexture(images[4]);
-	Body mars = Body(radius, distance, speed, rotation,texture, mat_emission);
+	Body mars = Body(radius, distance, speed, rotation,texture, mat_emission, mat_ambient, mat_shine);
 	
 	distance = 250;
-	radius = 20;
+	radius = 30;
 	speed = 2.5;
 	texture = loadTexture(images[5]);
-	Body jupiter = Body(radius, distance, speed, rotation,texture, mat_emission);
+	Body jupiter = Body(radius, distance, speed, rotation,texture, mat_emission, mat_ambient, mat_shine);
 	
 	distance = 300;
-	radius = 15;
+	radius = 20;
 	speed = 2;
 	texture = loadTexture(images[6]);
-	Body saturn =Body(radius, distance, speed, rotation,texture, mat_emission);
+	Body saturn =Body(radius, distance, speed, rotation,texture, mat_emission, mat_ambient, mat_shine);
 	
 	distance = 350;
-	radius = 4;
+	radius = 15;
 	speed = 1.5;
 	texture = loadTexture(images[7]);
-	Body uranus = Body(radius, distance, speed, rotation,texture, mat_emission);
+	Body uranus = Body(radius, distance, speed, rotation,texture, mat_emission, mat_ambient, mat_shine);
 	
 	distance = 400;
-	radius = 3;
+	radius = 14;
 	speed = 1;
 	texture = loadTexture(images[8]);
-	Body neptune = Body(radius, distance, speed, rotation,texture, mat_emission);
+	Body neptune = Body(radius, distance, speed, rotation,texture, mat_emission, mat_ambient, mat_shine);
 	
+	mat_shine[0] = 1;
 	distance = 25;
-	radius = 5;
+	radius = 4;
 	speed = 10;
 	texture = loadTexture(images[9]);
-	Body moon = Body(radius, distance, speed, rotation,texture, mat_emission);
+	Body moon = Body(radius, distance, speed, rotation,texture, mat_emission, mat_ambient, mat_shine);
 	
 	sun_and_planets[0] = sun;
 	sun_and_planets[1] = mercury;
@@ -260,10 +274,6 @@ void init_bodys(){
 // Initialization routine.
 void setup(void)
 {
-	//	glEnable(GL_LIGHT0);
-	
-	
-	
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_DEPTH_TEST);
@@ -281,14 +291,6 @@ void setup(void)
 // Drawing routine.
 void drawScene(void)
 {
-	
-	// Material property vectors.
-		float matAmb[] = { 0.0, 0.0, 0.5, 1.0 };
-		float matDif[] = { 0.0, 0.0, 0.5, 1.0 };
-		float matSpec[] = { 0.5, 0.5, 0.5, 1.0 };
-		float matShine[] = { 0.5 };
-		float matEmission[] = { 0.0, 0.0, 1, 1.0 };
-	
 	frameCount++; // Increment number of frames every redraw.
 	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
