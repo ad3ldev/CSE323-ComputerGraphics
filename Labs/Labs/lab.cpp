@@ -49,7 +49,7 @@ class Body
 {
 public:
 	Body();
-	Body(float r, float d, float s, float rotate, GLuint texture);
+	Body(float r, float d, float s, float rotate, GLuint texture, float mat_em[4]);
 	float getRadius() { return radius; }
 	float getDistance() { return distance; }
 	float getSpeed() { return speed; }
@@ -60,6 +60,7 @@ private:
 	GLUquadric *body = gluNewQuadric();
 	float radius, distance, speed, rotation;
 	GLuint texture;
+	float mat_emission [4];
 };
 
 Body::Body()
@@ -70,13 +71,16 @@ Body::Body()
 	rotation = 0;
 }
 
-Body::Body(float r, float d, float s, float rotate, GLuint textureImage)
+Body::Body(float r, float d, float s, float rotate, GLuint textureImage, float mat_em[4])
 {
 	radius = r;
 	speed = s;
 	distance = d;
 	texture = textureImage;
 	rotation = rotate;
+	for (int i = 0; i < 4; i++){
+		mat_emission[i] = mat_em[i];
+	}
 }
 
 void Body::draw()
@@ -89,10 +93,11 @@ void Body::draw()
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_NEAREST);
+		glMaterialfv(GL_FRONT, GL_EMISSION, mat_emission);
 		glRotatef(90, 1, 0, 0);
 		glRotatef(rotate_speed*rotation, 1, 1, 1);
 		gluQuadricTexture(body,true);
-		gluSphere(body, radius, 20, 20);
+		gluSphere(body, radius, 100, 100);
 		glPopMatrix();
 	}
 }
@@ -126,6 +131,9 @@ void draw_box()
 void draw_solar()
 {
 	int i = 0;
+	GLfloat position[] = {0.0, 0.0, 0, 1.0};
+	
+	glLightfv(GL_LIGHT0, GL_POSITION, position);
 	sun_and_planets[i].draw();
 	for (i = 0; i < NUMNER_OF_BODIES - 1; i++)
 	{
@@ -163,8 +171,6 @@ void orbiting(int value)
 	glutPostRedisplay();
 	glutTimerFunc(100, orbiting, 1);
 }
-void rotating(int value){
-}
 void frameCounter(int value)
 {
 	if (value != 0) // No output the first time frameCounter() is called (from main()).
@@ -173,73 +179,72 @@ void frameCounter(int value)
 	glutTimerFunc(1000, frameCounter, 1);
 }
 
-// Initialization routine.
-void setup(void)
-{
-	//	glEnable(GL_LIGHTING);
-	//	glEnable(GL_LIGHT0);
-	glEnable(GL_TEXTURE_2D);
-	
+void init_bodys(){
 	float distance = 0;
 	float radius = 30;
 	float speed = 0;
 	float rotation = 10;
+	float mat_emission[] = {1,1,1,1};
 	GLuint texture = loadTexture(images[0]);
-	Body sun = Body(radius, distance, speed, rotation,texture);
+	Body sun = Body(radius, distance, speed, rotation,texture, mat_emission);
 	
 	distance = 50;
 	radius = 4;
 	speed = 8.8;
 	texture = loadTexture(images[1]);
-	Body mercury = Body(radius, distance, speed, rotation,texture);
+	mat_emission[0] = 0;
+	mat_emission[1] = 0;
+	mat_emission[2] = 0;
+	mat_emission[3] = 0;
+	Body mercury = Body(radius, distance, speed, rotation,texture, mat_emission);
 	
 	distance = 100;
 	radius = 9;
 	speed = 6.5;
 	texture = loadTexture(images[2]);
-	Body venus = Body(radius, distance, speed, rotation,texture);
+	Body venus = Body(radius, distance, speed, rotation,texture, mat_emission);
 	
 	distance = 150;
 	radius = 10;
 	speed = 5.5;
 	texture = loadTexture(images[3]);
-	Body earth = Body(radius, distance, speed, rotation,texture);
+	Body earth = Body(radius, distance, speed, rotation,texture, mat_emission);
 	
 	distance = 200;
 	radius = 5;
 	speed = 4.5;
 	texture = loadTexture(images[4]);
-	Body mars = Body(radius, distance, speed, rotation,texture);
+	Body mars = Body(radius, distance, speed, rotation,texture, mat_emission);
 	
 	distance = 250;
 	radius = 20;
 	speed = 2.5;
 	texture = loadTexture(images[5]);
-	Body jupiter = Body(radius, distance, speed, rotation,texture);
+	Body jupiter = Body(radius, distance, speed, rotation,texture, mat_emission);
 	
 	distance = 300;
 	radius = 15;
 	speed = 2;
 	texture = loadTexture(images[6]);
-	Body saturn =Body(radius, distance, speed, rotation,texture);
+	Body saturn =Body(radius, distance, speed, rotation,texture, mat_emission);
 	
 	distance = 350;
 	radius = 4;
 	speed = 1.5;
 	texture = loadTexture(images[7]);
-	Body uranus = Body(radius, distance, speed, rotation,texture);
+	Body uranus = Body(radius, distance, speed, rotation,texture, mat_emission);
 	
 	distance = 400;
 	radius = 3;
 	speed = 1;
 	texture = loadTexture(images[8]);
-	Body neptune = Body(radius, distance, speed, rotation,texture);
+	Body neptune = Body(radius, distance, speed, rotation,texture, mat_emission);
 	
 	distance = 25;
 	radius = 5;
 	speed = 10;
 	texture = loadTexture(images[9]);
-	Body moon = Body(radius, distance, speed, rotation,texture);
+	Body moon = Body(radius, distance, speed, rotation,texture, mat_emission);
 	
 	sun_and_planets[0] = sun;
 	sun_and_planets[1] = mercury;
@@ -251,9 +256,23 @@ void setup(void)
 	sun_and_planets[7] = uranus;
 	sun_and_planets[8] = neptune;
 	sun_and_planets[9] = moon;
+}
+// Initialization routine.
+void setup(void)
+{
+	//	glEnable(GL_LIGHT0);
 	
-	glEnable(GL_DEPTH_TEST);
+	
+	
 	glClearColor(0.0, 0.0, 0.0, 0.0);
+	glEnable(GL_TEXTURE_2D);
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_LIGHTING);
+	
+	init_bodys();
+	
+	glEnable(GL_LIGHT0);
+	glEnable(GL_LIGHT1);
 	
 	glutTimerFunc(0, frameCounter, 0);
 	glutTimerFunc(0, orbiting, 0);
@@ -262,7 +281,14 @@ void setup(void)
 // Drawing routine.
 void drawScene(void)
 {
-	GLfloat position[] = {0.0, 0.0, 0, 1.0};
+	
+	// Material property vectors.
+		float matAmb[] = { 0.0, 0.0, 0.5, 1.0 };
+		float matDif[] = { 0.0, 0.0, 0.5, 1.0 };
+		float matSpec[] = { 0.5, 0.5, 0.5, 1.0 };
+		float matShine[] = { 0.5 };
+		float matEmission[] = { 0.0, 0.0, 1, 1.0 };
+	
 	frameCount++; // Increment number of frames every redraw.
 	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -278,7 +304,6 @@ void drawScene(void)
 			  0.0,
 			  1.0,
 			  0.0);
-	glLightfv(GL_LIGHT0, GL_POSITION, position);
 	draw_solar();
 	
 	glViewport(width / 1.5, 0, width / 3.0, height / 3.0);
@@ -286,7 +311,6 @@ void drawScene(void)
 	draw_box();
 	
 	gluLookAt(0.0, 600.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
-	glLightfv(GL_LIGHT0, GL_POSITION, position);
 	draw_all();
 	
 	glutSwapBuffers();
