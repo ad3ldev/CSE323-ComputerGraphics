@@ -117,6 +117,7 @@ void draw_spacecraft()
     glPushMatrix();
     glRotatef(180.0, 0.0, 1.0, 0.0);
     glColor3f(1.0, 1.0, 1.0);
+    glTranslatef(0, 0, -40);
     glutWireCone(10.0, 40.0, 10, 10);
     glPopMatrix();
     glPopMatrix();
@@ -306,8 +307,12 @@ void drawScene(void)
               0.0,
               1.0,
               0.0);
-    draw_solar();
+    draw_all();
     
+    glEnable(GL_SCISSOR_TEST);
+    glScissor(width / 1.5, 0, width / 3.0, height / 3.0);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glDisable(GL_SCISSOR_TEST);
     glViewport(width / 1.5, 0, width / 3.0, height / 3.0);
     glLoadIdentity();
     draw_box();
