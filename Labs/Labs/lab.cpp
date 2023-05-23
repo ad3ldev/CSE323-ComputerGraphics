@@ -22,16 +22,16 @@ static float orbit = rand() % 360;
 static float rotate_speed = 0;
 
 const char * images[] = {
-	"textures/sun.jpg",
-	"textures/mercury.jpg",
-	"textures/venus.jpg",
-	"textures/earth.jpg",
-	"textures/mars.jpg",
-	"textures/jupiter.jpg",
-	"textures/saturn.jpg",
-	"textures/uranus.jpg",
-	"Labs/textures/neptune.jpg",
-	"textures/moon.jpg"
+	"/Users/adele/Desktop/College/Year3/Term2/CSE323-ComputerGraphics/Labs/Labs/textures/sun.jpg",
+	"/Users/adele/Desktop/College/Year3/Term2/CSE323-ComputerGraphics/Labs/Labs/textures/mercury.jpg",
+	"/Users/adele/Desktop/College/Year3/Term2/CSE323-ComputerGraphics/Labs/Labs/textures/venus.jpg",
+	"/Users/adele/Desktop/College/Year3/Term2/CSE323-ComputerGraphics/Labs/Labs/textures/earth.jpg",
+	"/Users/adele/Desktop/College/Year3/Term2/CSE323-ComputerGraphics/Labs/Labs/textures/mars.jpg",
+	"/Users/adele/Desktop/College/Year3/Term2/CSE323-ComputerGraphics/Labs/Labs/textures/jupiter.jpg",
+	"/Users/adele/Desktop/College/Year3/Term2/CSE323-ComputerGraphics/Labs/Labs/textures/saturn.jpg",
+	"/Users/adele/Desktop/College/Year3/Term2/CSE323-ComputerGraphics/Labs/Labs/textures/uranus.jpg",
+	"/Users/adele/Desktop/College/Year3/Term2/CSE323-ComputerGraphics/Labs/Labs/textures/neptune.jpg",
+	"/Users/adele/Desktop/College/Year3/Term2/CSE323-ComputerGraphics/Labs/Labs/textures/moon.jpg"
 };
 
 GLuint loadTexture(const char * filename) {
