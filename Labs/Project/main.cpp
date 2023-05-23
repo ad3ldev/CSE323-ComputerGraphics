@@ -30,7 +30,7 @@ const char * images[] = {
     "textures/jupiter.jpg",
     "textures/saturn.jpg",
     "textures/uranus.jpg",
-    "Labs/textures/neptune.jpg",
+    "textures/neptune.jpg",
     "textures/moon.jpg"
 };
 
